@@ -37,5 +37,6 @@ alter table wedding_checklist_comments enable row level security;
 
 create policy "public read"   on wedding_checklist_comments for select using (true);
 create policy "public insert" on wedding_checklist_comments for insert with check (true);
+create policy "public delete" on wedding_checklist_comments for delete using (true);
 
 alter publication supabase_realtime add table wedding_checklist_comments;

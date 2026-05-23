@@ -3,407 +3,316 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Wedding Launch — Checklist</title>
+  <title>🎉 Wedding Launch Checklist</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --brown: #7B3F00;
-      --brown-light: #C0692A;
-      --green: #4CAF50;
-      --amber: #D97706;
+      --purple: #7C3AED;
+      --pink:   #EC4899;
+      --gold:   #F59E0B;
+      --green:  #10B981;
+      --bg:     #F5F3FF;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #f5f1ed;
+      background: var(--bg);
       color: #1a1a1a;
       min-height: 100vh;
     }
 
     /* ── Header ── */
     header {
-      background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+      background: linear-gradient(135deg, #5B21B6 0%, #9D174D 55%, #EC4899 100%);
       color: white;
-      padding: 20px 16px 16px;
-      text-align: center;
+      padding: 22px 18px 18px;
+      position: relative;
+      overflow: hidden;
     }
-    header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 3px; }
-    header p  { font-size: 0.8rem; opacity: 0.8; }
+    header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,0.13) 2px, transparent 2px),
+        radial-gradient(circle, rgba(255,255,255,0.08) 1.5px, transparent 1.5px);
+      background-size: 28px 28px, 16px 16px;
+      background-position: 0 0, 12px 12px;
+      pointer-events: none;
+    }
+    .header-inner { position: relative; text-align: center; }
+    header h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+    header p  { font-size: 0.8rem; opacity: 0.82; margin-bottom: 16px; }
+    .hpw { display: flex; align-items: center; gap: 10px; }
+    .hpt { flex: 1; height: 10px; background: rgba(255,255,255,0.22); border-radius: 5px; overflow: hidden; }
+    .hpf { height: 100%; background: var(--gold); border-radius: 5px; transition: width 0.5s ease; width: 0%; }
+    .hpx { font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+
+    /* ── Deadline banner ── */
+    .deadline {
+      background: linear-gradient(90deg, #F59E0B, #FBBF24);
+      color: #1a1a1a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .deadline.hidden { display: none; }
+    .dl-text { flex: 1; }
+    .dl-badge {
+      background: rgba(0,0,0,0.13);
+      border-radius: 10px;
+      padding: 2px 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .dl-close {
+      background: none; border: none;
+      font-size: 1rem; cursor: pointer;
+      color: #555; padding: 2px 4px; line-height: 1;
+    }
 
     /* ── Status bar ── */
     .status-bar {
       background: white;
-      padding: 10px 16px;
+      padding: 9px 14px;
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid #ece8e4;
+      border-bottom: 1px solid #e5e7eb;
       position: sticky;
       top: 0;
       z-index: 30;
     }
-    .progress-text { font-size: 0.8rem; font-weight: 700; color: #555; flex-shrink: 0; }
-    .progress-track {
-      flex: 1;
-      height: 5px;
-      background: #e5e0db;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--green);
-      border-radius: 3px;
-      transition: width 0.4s ease;
-      width: 0%;
-    }
+    .progress-text { font-size: 0.76rem; font-weight: 700; color: #555; flex-shrink: 0; }
+    .progress-track { flex: 1; height: 5px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .progress-fill  { height: 100%; background: linear-gradient(90deg, var(--purple), var(--pink)); border-radius: 3px; transition: width 0.4s; width: 0%; }
     .user-label {
-      font-size: 0.75rem;
-      color: #aaa;
-      flex-shrink: 0;
-      cursor: pointer;
-      max-width: 100px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 0.72rem; color: #bbb; flex-shrink: 0; cursor: pointer;
+      max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
 
     /* ── Tab strip ── */
     .tab-strip {
       background: white;
-      border-bottom: 1px solid #ece8e4;
-      display: flex;
-      overflow-x: auto;
-      scrollbar-width: none;
-      position: sticky;
-      top: 37px;
-      z-index: 20;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex; overflow-x: auto; scrollbar-width: none;
+      padding: 7px 10px; gap: 6px;
+      position: sticky; top: 34px; z-index: 20;
     }
     .tab-strip::-webkit-scrollbar { display: none; }
     .tab {
-      flex-shrink: 0;
-      padding: 10px 14px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: #999;
-      cursor: pointer;
-      border-bottom: 2.5px solid transparent;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-shrink: 0; padding: 6px 13px;
+      font-size: 0.74rem; font-weight: 700; color: #9ca3af;
+      cursor: pointer; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
       white-space: nowrap;
-      transition: color 0.2s, border-color 0.2s;
+      border: 2px solid #e5e7eb;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
       user-select: none;
     }
-    .tab.active { color: var(--brown); border-bottom-color: var(--brown); }
-    .tab-badge {
-      font-size: 0.66rem;
-      font-weight: 700;
-      background: #f0ebe5;
-      color: #999;
-      padding: 1px 6px;
-      border-radius: 8px;
-      transition: background 0.2s, color 0.2s;
-    }
-    .tab.active .tab-badge { background: #f5e8d8; color: var(--brown); }
+    .tab.active { background: var(--gold); color: white; border-color: var(--gold); }
+    .tab-badge  { font-size: 0.63rem; font-weight: 800; background: rgba(0,0,0,0.08); padding: 1px 5px; border-radius: 8px; }
+    .tab.active .tab-badge { background: rgba(255,255,255,0.3); }
 
-    /* ── Category section ── */
-    .category {
-      margin: 14px 14px 4px;
-      scroll-margin-top: 90px;
-    }
-    .cat-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 9px;
-    }
-    .cat-title {
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--brown);
-      flex-shrink: 0;
-    }
-    .cat-track {
-      flex: 1;
-      height: 4px;
-      background: #e5e0db;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .cat-fill {
-      height: 100%;
-      background: var(--green);
-      border-radius: 2px;
-      transition: width 0.4s;
-    }
-    .cat-count { font-size: 0.68rem; font-weight: 600; color: #aaa; flex-shrink: 0; }
+    /* ── Category ── */
+    .category { margin: 14px 13px 4px; scroll-margin-top: 94px; }
+    .cat-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .cat-title  { font-size: 0.64rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.1px; flex-shrink: 0; }
+    .cat-track  { flex: 1; height: 4px; background: #e5e7eb; border-radius: 2px; overflow: hidden; }
+    .cat-fill   { height: 100%; border-radius: 2px; transition: width 0.4s; }
+    .cat-count  { font-size: 0.67rem; font-weight: 700; color: #aaa; flex-shrink: 0; }
 
     /* ── Item card ── */
     .item {
-      background: white;
-      border-radius: 13px;
-      padding: 13px 14px 10px;
-      margin-bottom: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      background: white; border-radius: 14px;
+      padding: 14px 13px 11px; margin-bottom: 9px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      border-left: 4px solid #e5e7eb;
       transition: opacity 0.25s;
     }
-    .item.done { opacity: 0.48; }
+    .item.done { opacity: 0.42; }
     .item.done .item-title { text-decoration: line-through; color: #bbb; }
+
+    @keyframes bounce-check { 0%{transform:scale(1)} 35%{transform:scale(1.04)} 100%{transform:scale(1)} }
+    .item.bounce { animation: bounce-check 0.28s ease; }
 
     .item-top { display: flex; gap: 12px; align-items: flex-start; }
 
     .cb {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 2px solid #ddd;
-      flex-shrink: 0;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 2.5px solid #d1d5db; flex-shrink: 0;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: background 0.2s, border-color 0.2s, transform 0.1s;
-      margin-top: 1px;
-      user-select: none;
+      margin-top: 1px; user-select: none; position: relative;
     }
-    .cb:active { transform: scale(0.86); }
+    .cb:active { transform: scale(0.84); }
     .cb.checked { background: var(--green); border-color: var(--green); }
-    .cb.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
+    .cb.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 800; }
 
-    .item-body { flex: 1; min-width: 0; }
-    .item-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 4px; }
-    .item-meta  { font-size: 0.75rem; color: #777; line-height: 1.55; }
-    .item-meta b { color: #555; }
+    @keyframes pop-up {
+      0%   { opacity:1; transform:translate(-50%,0) scale(0.4); }
+      55%  { opacity:1; transform:translate(-50%,-18px) scale(1.3); }
+      100% { opacity:0; transform:translate(-50%,-30px) scale(1); }
+    }
+    .pop-emoji {
+      position: absolute; top: -4px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 1.1rem; pointer-events: none;
+      animation: pop-up 0.65s ease forwards;
+    }
 
+    .item-body  { flex: 1; min-width: 0; }
+    .item-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 4px; }
+    .item-meta  { font-size: 0.74rem; color: #6b7280; line-height: 1.55; }
+    .item-meta b { color: #374151; }
     .needs-owner {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--amber);
-      background: #FFF8ED;
-      border: 1px solid #FDE68A;
-      border-radius: 4px;
-      padding: 1px 7px;
-      margin-top: 5px;
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 0.66rem; font-weight: 700; color: #D97706;
+      background: #FFF8ED; border: 1px solid #FDE68A;
+      border-radius: 4px; padding: 1px 7px; margin-top: 5px;
     }
-    .done-by { font-size: 0.71rem; color: var(--green); font-weight: 600; margin-top: 5px; }
-    .item-cost { font-size: 0.74rem; font-weight: 700; color: var(--brown); white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
+    .done-by  { font-size: 0.7rem; color: var(--green); font-weight: 700; margin-top: 5px; }
+    .item-cost { font-size: 0.73rem; font-weight: 800; color: var(--purple); white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
 
-    .item-footer { display: flex; justify-content: flex-end; margin-top: 9px; }
-    .comment-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.72rem;
-      color: #aaa;
-      cursor: pointer;
-      padding: 4px 10px;
-      border-radius: 14px;
-      background: #f5f1ed;
-      border: none;
-      transition: background 0.15s, color 0.15s;
-      user-select: none;
-      font-family: inherit;
+    /* ── Inline comment bubbles ── */
+    .inline-comments { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .ic-row { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+    .ic-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      color: white; font-size: 0.62rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-    .comment-btn:active { background: #ece8e4; }
-    .comment-btn.has-comments { color: var(--brown); background: #f5ead8; }
+    .ic-bubble {
+      background: #EDE9FE; border-radius: 3px 10px 10px 10px;
+      padding: 5px 10px; flex: 1; min-width: 0;
+      display: flex; align-items: baseline; gap: 5px;
+    }
+    .ic-name { font-size: 0.69rem; font-weight: 800; color: var(--purple); flex-shrink: 0; }
+    .ic-text { font-size: 0.74rem; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+    .ic-time { font-size: 0.62rem; color: #9ca3af; flex-shrink: 0; }
+
+    .comment-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 0.71rem; font-weight: 600; color: #9ca3af;
+      cursor: pointer; padding: 5px 11px; border-radius: 16px;
+      background: #f3f4f6; border: none;
+      transition: background 0.15s, color 0.15s;
+      user-select: none; font-family: inherit; margin-top: 6px;
+    }
+    .comment-btn:active { background: #e5e7eb; }
+    .comment-btn.has-comments { color: var(--purple); background: #EDE9FE; }
 
     /* ── Name modal ── */
     .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 200;
-      padding: 20px;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.52);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; padding: 20px;
     }
     .overlay.hidden { display: none; }
-    .modal {
-      background: white;
-      border-radius: 18px;
-      padding: 24px 20px;
-      width: 100%;
-      max-width: 320px;
-    }
-    .modal h2 { font-size: 1.05rem; margin-bottom: 6px; }
-    .modal p  { font-size: 0.82rem; color: #666; margin-bottom: 16px; line-height: 1.5; }
+    .modal { background: white; border-radius: 20px; padding: 26px 22px; width: 100%; max-width: 320px; }
+    .modal h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+    .modal p  { font-size: 0.82rem; color: #6b7280; margin-bottom: 18px; line-height: 1.5; }
     .modal input {
-      width: 100%;
-      padding: 11px 14px;
-      border: 2px solid #e0dbd5;
-      border-radius: 9px;
-      font-size: 1rem;
-      outline: none;
-      margin-bottom: 12px;
-      font-family: inherit;
+      width: 100%; padding: 12px 14px;
+      border: 2px solid #e5e7eb; border-radius: 10px;
+      font-size: 1rem; outline: none; margin-bottom: 12px; font-family: inherit;
     }
-    .modal input:focus { border-color: var(--brown); }
+    .modal input:focus { border-color: var(--purple); }
     .modal button {
-      width: 100%;
-      padding: 12px;
-      background: var(--brown);
-      color: white;
-      border: none;
-      border-radius: 9px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
+      width: 100%; padding: 13px;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: 700; cursor: pointer; font-family: inherit;
     }
-    .modal button:active { opacity: 0.85; }
 
     /* ── Comment sheet ── */
     .sheet-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.42);
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s;
     }
     .sheet-overlay.open { opacity: 1; pointer-events: all; }
-
     .sheet {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      max-height: 78vh;
-      background: white;
-      border-radius: 20px 20px 0 0;
-      display: flex;
-      flex-direction: column;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      max-height: 80vh; background: white;
+      border-radius: 22px 22px 0 0;
+      display: flex; flex-direction: column;
       transform: translateY(100%);
-      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
       z-index: 101;
     }
     .sheet.open { transform: translateY(0); }
-
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background: #ddd;
-      border-radius: 2px;
-      margin: 10px auto 0;
-      flex-shrink: 0;
-    }
+    .sheet-handle { width: 36px; height: 4px; background: #d1d5db; border-radius: 2px; margin: 10px auto 0; flex-shrink: 0; }
     .sheet-header {
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
+      padding: 14px 16px 12px; border-bottom: 1px solid #f3f4f6;
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
     }
-    .sheet-title { flex: 1; font-weight: 700; font-size: 0.95rem; }
+    .sheet-title { flex: 1; font-weight: 800; font-size: 0.93rem; }
     .sheet-close {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: none;
-      background: #f0ede9;
-      color: #666;
-      font-size: 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      line-height: 1;
+      width: 28px; height: 28px; border-radius: 50%;
+      border: none; background: #f3f4f6; color: #6b7280;
+      font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-
-    .comment-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px 16px 6px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .no-comments { text-align: center; color: #ccc; font-size: 0.82rem; padding: 28px 0; }
-
-    .comment-item { display: flex; gap: 10px; margin-bottom: 14px; }
+    .comment-list { flex: 1; overflow-y: auto; padding: 14px 16px 6px; -webkit-overflow-scrolling: touch; }
+    .no-comments  { text-align: center; color: #d1d5db; font-size: 0.82rem; padding: 30px 0; }
+    .comment-item { display: flex; gap: 10px; margin-bottom: 14px; align-items: flex-start; }
     .c-avatar {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      color: white;
-      font-size: 0.75rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 32px; height: 32px; border-radius: 50%;
+      color: white; font-size: 0.78rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
     .c-bubble {
-      background: #f5f1ed;
-      border-radius: 4px 14px 14px 14px;
-      padding: 8px 12px;
-      flex: 1;
-      min-width: 0;
+      background: #F5F3FF; border-radius: 4px 14px 14px 14px;
+      padding: 9px 12px; flex: 1; min-width: 0; position: relative;
     }
-    .c-author { font-size: 0.72rem; font-weight: 700; color: var(--brown); margin-bottom: 3px; }
-    .c-text   { font-size: 0.85rem; color: #333; line-height: 1.45; word-break: break-word; }
-    .c-time   { font-size: 0.66rem; color: #ccc; margin-top: 4px; }
+    .c-author { font-size: 0.72rem; font-weight: 800; color: var(--purple); margin-bottom: 3px; }
+    .c-text   { font-size: 0.85rem; color: #374151; line-height: 1.45; word-break: break-word; padding-right: 18px; }
+    .c-time   { font-size: 0.65rem; color: #d1d5db; margin-top: 4px; }
+    .c-delete {
+      position: absolute; top: 7px; right: 8px;
+      background: none; border: none; font-size: 0.78rem;
+      color: #d1d5db; cursor: pointer; padding: 2px 4px;
+      line-height: 1; border-radius: 4px; transition: color 0.15s, background 0.15s;
+    }
+    .c-delete:hover { color: #ef4444; background: #fee2e2; }
 
     .comment-footer {
-      display: flex;
-      gap: 8px;
-      padding: 10px 14px;
-      border-top: 1px solid #eee;
+      display: flex; gap: 8px; padding: 10px 14px;
+      border-top: 1px solid #f3f4f6;
       padding-bottom: max(12px, env(safe-area-inset-bottom));
       flex-shrink: 0;
     }
     .comment-input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 2px solid #e5e0db;
-      border-radius: 22px;
-      font-size: 0.9rem;
-      outline: none;
-      font-family: inherit;
+      flex: 1; padding: 10px 14px;
+      border: 2px solid #e5e7eb; border-radius: 22px;
+      font-size: 0.9rem; outline: none; font-family: inherit;
     }
-    .comment-input:focus { border-color: var(--brown); }
+    .comment-input:focus { border-color: var(--purple); }
     .comment-send {
       padding: 10px 18px;
-      background: var(--brown);
-      color: white;
-      border: none;
-      border-radius: 22px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      flex-shrink: 0;
-      font-family: inherit;
+      background: linear-gradient(135deg, var(--purple), var(--pink));
+      color: white; border: none; border-radius: 22px;
+      font-size: 0.85rem; font-weight: 700; cursor: pointer;
+      flex-shrink: 0; font-family: inherit;
     }
     .comment-send:active { opacity: 0.8; }
 
     /* ── Toast ── */
     .toast {
-      position: fixed;
-      bottom: 22px;
-      left: 50%;
+      position: fixed; bottom: 22px; left: 50%;
       transform: translateX(-50%) translateY(16px);
-      background: rgba(20,20,20,0.88);
-      color: white;
-      padding: 9px 18px;
-      border-radius: 22px;
-      font-size: 0.8rem;
-      opacity: 0;
+      background: rgba(15,15,15,0.9); color: white;
+      padding: 9px 18px; border-radius: 22px;
+      font-size: 0.8rem; opacity: 0;
       transition: opacity 0.25s, transform 0.25s;
-      pointer-events: none;
-      white-space: nowrap;
-      max-width: 86vw;
-      text-align: center;
-      z-index: 400;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      pointer-events: none; white-space: nowrap;
+      max-width: 86vw; text-align: center;
+      z-index: 400; overflow: hidden; text-overflow: ellipsis;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -413,14 +322,27 @@
 <body>
 
 <header>
-  <h1>Wedding Launch — Checklist</h1>
-  <p>Meeting 22 May 2026 &nbsp;·&nbsp; Tap any item to mark it done</p>
+  <div class="header-inner">
+    <h1>🎉 Wedding Launch Checklist</h1>
+    <p>22 May 2026 · Tap any item to mark it done · Everyone sees it live</p>
+    <div class="hpw">
+      <div class="hpt"><div class="hpf" id="header-fill"></div></div>
+      <div class="hpx" id="header-text">0 / 21 done</div>
+    </div>
+  </div>
 </header>
+
+<div class="deadline" id="deadline-banner">
+  <span>🕐</span>
+  <span class="dl-text">First deadline: <strong>Tuesday 27 May</strong> — all items to be confirmed</span>
+  <span class="dl-badge" id="dl-days"></span>
+  <button class="dl-close" onclick="dismissBanner()">✕</button>
+</div>
 
 <div class="status-bar">
   <span class="progress-text" id="progress-text">Loading…</span>
   <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-  <span class="user-label" id="user-label" onclick="changeName()" title="Tap to change name"></span>
+  <span class="user-label" id="user-label" onclick="changeName()"></span>
 </div>
 
 <div class="tab-strip" id="tab-strip"></div>
@@ -430,10 +352,10 @@
 <!-- Name modal -->
 <div class="overlay" id="name-overlay">
   <div class="modal">
-    <h2>Who are you? 👋</h2>
-    <p>Enter your name so everyone can see who checked items off and left comments.</p>
+    <h2>Hey there! 👋</h2>
+    <p>Enter your name so the crew knows who's ticking things off and leaving comments.</p>
     <input type="text" id="name-input" placeholder="Your name" maxlength="30" autocomplete="name" />
-    <button onclick="saveName()">Let's go</button>
+    <button onclick="saveName()">Let's go! 🎉</button>
   </div>
 </div>
 
@@ -456,434 +378,381 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL     = 'https://ejeupxhrfecsqobkxhun.supabase.co';
+const SUPABASE_URL      = 'https://ejeupxhrfecsqobkxhun.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqZXVweGhyZmVjc3FvYmt4aHVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDg4MDEsImV4cCI6MjA4NjQ4NDgwMX0.LiYUhHxNmfKDAH3ABuQhEIUtVKYTyf38t7HeEdfHg0g';
-
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+const CAT_COLORS = {
+  'Venue Items':     '#7C3AED',
+  'Food & Drinks':   '#EC4899',
+  'MC & Activities': '#F59E0B',
+};
+
 const ITEMS = [
-  { id: 'venue-tents',      cat: 'Venue Items',     title: 'Tents',
-    responsible: 'Audrey',                 contact: '0774064055',
-    notes: '2 tents (100 seater) at 150,000/=', cost: '300,000' },
-
-  { id: 'venue-lighting',   cat: 'Venue Items',     title: 'Lighting',
-    responsible: 'Chairman',               contact: 'Derrick · 0784 604772',
-    notes: 'Lighting arrangements to be made', cost: '' },
-
-  { id: 'venue-tables',     cat: 'Venue Items',     title: 'Tables',
-    responsible: 'Audrey',                 contact: 'Audrey',
-    notes: 'Tables at 15,000/=', cost: '' },
-
-  { id: 'venue-chairs',     cat: 'Venue Items',     title: 'Chairs',
-    responsible: 'Audrey',                 contact: 'Audrey',
-    notes: 'Chair at 500/=', cost: '' },
-
-  { id: 'venue-transport',  cat: 'Venue Items',     title: 'Transport',
-    responsible: '—',                      contact: '—',
-    notes: '', cost: '50,000' },
-
-  { id: 'venue-linens',     cat: 'Venue Items',     title: 'Table linens',
-    responsible: 'Audrey',                 contact: 'Audrey',
-    notes: '5,000/= per linen · venue items subtotal: 830,000', cost: '' },
-
-  { id: 'venue-pa',         cat: 'Venue Items',     title: 'PA system',
-    responsible: 'Rita',                   contact: '0774 620424',
-    notes: 'Sound system, DJ transport and generator', cost: '400,000' },
-
-  { id: 'food-food',        cat: 'Food & Drinks',   title: 'Food for guests (~200 people)',
-    responsible: 'Audrey',                 contact: 'Audrey',
-    notes: 'Budget discussed', cost: '2,995,000' },
-
-  { id: 'food-beer',        cat: 'Food & Drinks',   title: 'Beer procurement',
-    responsible: 'Armstrong',              contact: 'Armstrong',
-    notes: 'Approx. 400 units (16 crates)', cost: '1,600,000' },
-
-  { id: 'food-cocktails',   cat: 'Food & Drinks',   title: 'Cocktails',
-    responsible: 'Rita',                   contact: 'Rita',
-    notes: 'Approx. 150', cost: '1,500,000' },
-
-  { id: 'food-whisky',      cat: 'Food & Drinks',   title: 'Whisky',
-    responsible: 'Armstrong',              contact: 'Armstrong',
-    notes: '4 bottles', cost: '' },
-
-  { id: 'food-water',       cat: 'Food & Drinks',   title: 'Water',
-    responsible: 'Drinks team',            contact: 'Audrey',
-    notes: 'Confirm quantities', cost: '' },
-
-  { id: 'food-soda',        cat: 'Food & Drinks',   title: 'Soda',
-    responsible: 'Drinks team',            contact: 'Audrey',
-    notes: 'Confirm quantities', cost: '' },
-
-  { id: 'mc-mc',            cat: 'MC & Activities', title: 'Coordinate with MC',
-    responsible: 'Audrey',                 contact: 'Audrey',
-    notes: 'Finalize MC arrangements', cost: '' },
-
-  { id: 'mc-raffle',        cat: 'MC & Activities', title: 'Raffle coordination',
-    responsible: 'MC & Mona',              contact: 'Mona · 77 509309',
-    notes: 'Organize prizes — raffles at 10,000 and 20,000', cost: '' },
-
-  { id: 'mc-auction',       cat: 'MC & Activities', title: 'Auction coordination',
-    responsible: 'MC',                     contact: 'MC',
-    notes: 'Coordinate auction flow', cost: '' },
-
-  { id: 'mc-auction-items', cat: 'MC & Activities', title: 'Recommend auction items',
-    responsible: 'Kenneth, Armstrong & Jennifer',
-    contact: 'Kenneth · 782 032990 / Armstrong',
-    notes: 'Whisky (Gold Reserve Dexter), Wine (Nedburg — Armstrong pledged), Rice cooker', cost: '' },
-
-  { id: 'mc-shopping',      cat: 'MC & Activities', title: 'Shopping vouchers',
-    responsible: 'Rita / Jenny',           contact: 'Rita',
-    notes: 'Voucher prizes — 200,000 split into 4', cost: '' },
-
-  { id: 'mc-fuel',          cat: 'MC & Activities', title: 'Fuel vouchers',
-    responsible: 'Chairman & Derrick',     contact: 'Derrick',
-    notes: 'Voucher prizes — 250,000 split into 4 (some 80k, some 120k)', cost: '' },
-
-  { id: 'mc-vehicle',       cat: 'MC & Activities', title: 'Vehicle servicing',
-    responsible: 'Not allocated yet',      contact: '—',
-    notes: '300,000 split into 2', cost: '' },
-
-  { id: 'mc-spa',           cat: 'MC & Activities', title: 'Spa package',
-    responsible: 'Rita',                   contact: 'Rita',
-    notes: "Spa package 150–250k — Don's organis / Calabash", cost: '' },
+  { id:'venue-tents',      cat:'Venue Items',     title:'Tents',
+    responsible:'Audrey',                contact:'0774064055',
+    notes:'2 tents (100 seater) at 150,000/=', cost:'300,000' },
+  { id:'venue-lighting',   cat:'Venue Items',     title:'Lighting',
+    responsible:'Chairman',              contact:'Derrick · 0784 604772',
+    notes:'Lighting arrangements to be made', cost:'' },
+  { id:'venue-tables',     cat:'Venue Items',     title:'Tables',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:'Tables at 15,000/=', cost:'' },
+  { id:'venue-chairs',     cat:'Venue Items',     title:'Chairs',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:'Chair at 500/=', cost:'' },
+  { id:'venue-transport',  cat:'Venue Items',     title:'Transport',
+    responsible:'—',                     contact:'—',
+    notes:'', cost:'50,000' },
+  { id:'venue-linens',     cat:'Venue Items',     title:'Table linens',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:'5,000/= per linen · venue items subtotal: 830,000', cost:'' },
+  { id:'venue-pa',         cat:'Venue Items',     title:'PA system',
+    responsible:'Rita',                  contact:'0774 620424',
+    notes:'Sound system, DJ transport and generator', cost:'400,000' },
+  { id:'food-food',        cat:'Food & Drinks',   title:'Food for guests (~200 people)',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:'Budget discussed', cost:'2,995,000' },
+  { id:'food-beer',        cat:'Food & Drinks',   title:'Beer procurement',
+    responsible:'Armstrong',             contact:'Armstrong',
+    notes:'Approx. 400 units (16 crates)', cost:'1,600,000' },
+  { id:'food-cocktails',   cat:'Food & Drinks',   title:'Cocktails',
+    responsible:'Rita',                  contact:'Rita',
+    notes:'Approx. 150', cost:'1,500,000' },
+  { id:'food-whisky',      cat:'Food & Drinks',   title:'Whisky',
+    responsible:'Armstrong',             contact:'Armstrong',
+    notes:'4 bottles', cost:'' },
+  { id:'food-water',       cat:'Food & Drinks',   title:'Water',
+    responsible:'Drinks team',           contact:'Audrey',
+    notes:'Confirm quantities', cost:'' },
+  { id:'food-soda',        cat:'Food & Drinks',   title:'Soda',
+    responsible:'Drinks team',           contact:'Audrey',
+    notes:'Confirm quantities', cost:'' },
+  { id:'mc-mc',            cat:'MC & Activities', title:'Coordinate with MC',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:'Finalize MC arrangements', cost:'' },
+  { id:'mc-raffle',        cat:'MC & Activities', title:'Raffle coordination',
+    responsible:'MC & Mona',             contact:'Mona · 77 509309',
+    notes:'Organize prizes — raffles at 10,000 and 20,000', cost:'' },
+  { id:'mc-auction',       cat:'MC & Activities', title:'Auction coordination',
+    responsible:'MC',                    contact:'MC',
+    notes:'Coordinate auction flow', cost:'' },
+  { id:'mc-auction-items', cat:'MC & Activities', title:'Recommend auction items',
+    responsible:'Kenneth, Armstrong & Jennifer',
+    contact:'Kenneth · 782 032990 / Armstrong',
+    notes:'Whisky (Gold Reserve Dexter), Wine (Nedburg — Armstrong pledged), Rice cooker', cost:'' },
+  { id:'mc-shopping',      cat:'MC & Activities', title:'Shopping vouchers',
+    responsible:'Rita / Jenny',          contact:'Rita',
+    notes:'Voucher prizes — 200,000 split into 4', cost:'' },
+  { id:'mc-fuel',          cat:'MC & Activities', title:'Fuel vouchers',
+    responsible:'Chairman & Derrick',    contact:'Derrick',
+    notes:'Voucher prizes — 250,000 split into 4 (some 80k, some 120k)', cost:'' },
+  { id:'mc-vehicle',       cat:'MC & Activities', title:'Vehicle servicing',
+    responsible:'Not allocated yet',     contact:'—',
+    notes:'300,000 split into 2', cost:'' },
+  { id:'mc-spa',           cat:'MC & Activities', title:'Spa package',
+    responsible:'Audrey',                contact:'Audrey',
+    notes:"Spa package 150–250k — Don's organis / Calabash", cost:'' },
 ];
 
-const CATEGORIES = [...new Set(ITEMS.map(i => i.cat))];
+const CATEGORIES    = [...new Set(ITEMS.map(i => i.cat))];
+const AVATAR_COLORS = ['#7C3AED','#EC4899','#F59E0B','#10B981','#2563EB','#EF4444'];
 
-function catId(cat) {
-  return 'cat-' + cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+function catId(cat)       { return 'cat-' + cat.toLowerCase().replace(/[^a-z0-9]+/g,'-'); }
+function esc(s)           { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function avatarColor(name){ let h=0; for(const c of name) h=(h*31+c.charCodeAt(0))&0xFFFFFFFF; return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]; }
+function relTime(ts) {
+  if (!ts) return '';
+  const d = (Date.now()-new Date(ts))/1000;
+  if (d<60)    return 'just now';
+  if (d<3600)  return `${Math.floor(d/60)}m ago`;
+  if (d<86400) return `${Math.floor(d/3600)}h ago`;
+  return new Date(ts).toLocaleDateString('en-UG',{month:'short',day:'numeric'});
 }
-
-// ── State ─────────────────────────────────────────────────────────────────
-let checkState = {};  // { [item_id]: { checked, checked_by, updated_at } }
-let comments   = {};  // { [item_id]: Comment[] }
-let userName   = localStorage.getItem('wcl_name') || '';
-let activeSheetItemId = null;
-let scrollObserver = null;
-
-// ── Name ──────────────────────────────────────────────────────────────────
-function showNameModal() {
-  document.getElementById('name-overlay').classList.remove('hidden');
-  setTimeout(() => document.getElementById('name-input').focus(), 100);
-}
-function hideNameModal() {
-  document.getElementById('name-overlay').classList.add('hidden');
-}
-function updateUserLabel() {
-  document.getElementById('user-label').textContent = userName ? `${userName} ✎` : '';
-}
-function saveName() {
-  const v = document.getElementById('name-input').value.trim();
-  if (!v) { document.getElementById('name-input').focus(); return; }
-  userName = v;
-  localStorage.setItem('wcl_name', userName);
-  hideNameModal();
-  updateUserLabel();
-}
-function changeName() {
-  document.getElementById('name-input').value = userName;
-  showNameModal();
-}
-document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveName(); });
-
-if (!userName) showNameModal();
-else { hideNameModal(); updateUserLabel(); }
-
-// ── Tabs ──────────────────────────────────────────────────────────────────
-function renderTabs() {
-  document.getElementById('tab-strip').innerHTML = CATEGORIES.map((cat, i) => {
-    const its  = ITEMS.filter(x => x.cat === cat);
-    const done = its.filter(x => checkState[x.id]?.checked).length;
-    return `<div class="tab${i===0?' active':''}" id="tab-${catId(cat)}" onclick="jumpTo('${catId(cat)}')">
-      ${cat} <span class="tab-badge" id="badge-${catId(cat)}">${done}/${its.length}</span>
-    </div>`;
-  }).join('');
-}
-
-function updateTabBadges() {
-  CATEGORIES.forEach(cat => {
-    const its   = ITEMS.filter(x => x.cat === cat);
-    const done  = its.filter(x => checkState[x.id]?.checked).length;
-    const badge = document.getElementById(`badge-${catId(cat)}`);
-    if (badge) badge.textContent = `${done}/${its.length}`;
-  });
-}
-
-function jumpTo(id) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  setActiveTab(id);
-}
-
-function setActiveTab(id) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  const tab = document.getElementById(`tab-${id}`);
-  if (tab) {
-    tab.classList.add('active');
-    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  }
-}
-
-function setupScrollSpy() {
-  if (scrollObserver) scrollObserver.disconnect();
-  scrollObserver = new IntersectionObserver(entries => {
-    for (const e of entries) {
-      if (e.isIntersecting) setActiveTab(e.target.id);
-    }
-  }, { threshold: 0.15, rootMargin: '-85px 0px -50% 0px' });
-  CATEGORIES.forEach(cat => {
-    const el = document.getElementById(catId(cat));
-    if (el) scrollObserver.observe(el);
-  });
-}
-
-// ── Render ────────────────────────────────────────────────────────────────
 function formatTs(ts) {
   if (!ts) return '';
   const d = new Date(ts);
-  return d.toLocaleDateString('en-UG', { month: 'short', day: 'numeric' })
-    + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit', hour12: true });
+  return d.toLocaleDateString('en-UG',{month:'short',day:'numeric'})
+    +' '+d.toLocaleTimeString('en-UG',{hour:'2-digit',minute:'2-digit',hour12:true});
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+let checkState={}, comments={}, userName=localStorage.getItem('wcl_name')||'', activeSheetItemId=null, scrollObserver=null;
+
+// ── Deadline banner ───────────────────────────────────────────────────────
+(function(){
+  if (localStorage.getItem('wcl_banner_dismissed')) { document.getElementById('deadline-banner').classList.add('hidden'); return; }
+  const days = Math.ceil((new Date('2026-05-27T00:00:00') - Date.now()) / 86400000);
+  const el   = document.getElementById('dl-days');
+  if      (days > 0)  el.textContent = `${days} day${days===1?'':'s'} left`;
+  else if (days === 0) el.textContent = 'Today!';
+  else                { el.textContent = 'Passed'; el.style.opacity='0.6'; }
+})();
+function dismissBanner() { document.getElementById('deadline-banner').classList.add('hidden'); localStorage.setItem('wcl_banner_dismissed','1'); }
+
+// ── Name ──────────────────────────────────────────────────────────────────
+function showNameModal() { document.getElementById('name-overlay').classList.remove('hidden'); setTimeout(()=>document.getElementById('name-input').focus(),100); }
+function hideNameModal() { document.getElementById('name-overlay').classList.add('hidden'); }
+function updateUserLabel() { document.getElementById('user-label').textContent = userName ? `${userName} ✎` : ''; }
+function saveName() {
+  const v = document.getElementById('name-input').value.trim();
+  if (!v) { document.getElementById('name-input').focus(); return; }
+  userName = v; localStorage.setItem('wcl_name', userName);
+  hideNameModal(); updateUserLabel();
+}
+function changeName() { document.getElementById('name-input').value = userName; showNameModal(); }
+document.getElementById('name-input').addEventListener('keydown', e => { if (e.key==='Enter') saveName(); });
+if (!userName) showNameModal(); else { hideNameModal(); updateUserLabel(); }
+
+// ── Progress ──────────────────────────────────────────────────────────────
+function updateProgress() {
+  const done  = ITEMS.filter(i => checkState[i.id]?.checked).length;
+  const total = ITEMS.length;
+  const pct   = Math.round((done/total)*100);
+  document.getElementById('progress-text').textContent = `${done} / ${total} done`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+  document.getElementById('header-fill').style.width   = `${pct}%`;
+  document.getElementById('header-text').textContent   = done===total ? '🎊 All done!' : `${done} / ${total} done`;
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function renderTabs() {
+  document.getElementById('tab-strip').innerHTML = CATEGORIES.map((cat,i) => {
+    const its=ITEMS.filter(x=>x.cat===cat), done=its.filter(x=>checkState[x.id]?.checked).length;
+    return `<div class="tab${i===0?' active':''}" id="tab-${catId(cat)}" onclick="jumpTo('${catId(cat)}')">${cat} <span class="tab-badge" id="badge-${catId(cat)}">${done}/${its.length}</span></div>`;
+  }).join('');
+}
+function updateTabBadges() {
+  CATEGORIES.forEach(cat => {
+    const its=ITEMS.filter(x=>x.cat===cat), done=its.filter(x=>checkState[x.id]?.checked).length;
+    const el=document.getElementById(`badge-${catId(cat)}`); if(el) el.textContent=`${done}/${its.length}`;
+  });
+}
+function jumpTo(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); setActiveTab(id); }
+function setActiveTab(id) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const tab=document.getElementById(`tab-${id}`);
+  if(tab){tab.classList.add('active');tab.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});}
+}
+function setupScrollSpy() {
+  if (scrollObserver) scrollObserver.disconnect();
+  scrollObserver = new IntersectionObserver(entries=>{for(const e of entries){if(e.isIntersecting) setActiveTab(e.target.id);}},{threshold:0.15,rootMargin:'-90px 0px -50% 0px'});
+  CATEGORIES.forEach(cat=>{const el=document.getElementById(catId(cat));if(el) scrollObserver.observe(el);});
+}
+
+// ── Render ────────────────────────────────────────────────────────────────
+function inlineCommentsHtml(itemId) {
+  const cList   = (comments[itemId]||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  const preview = cList.slice(-2);
+  return preview.map(c=>`
+    <div class="ic-row" onclick="openComments('${itemId}')">
+      <div class="ic-avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
+      <div class="ic-bubble">
+        <span class="ic-name">${esc(c.author)}:</span>
+        <span class="ic-text">${esc(c.body)}</span>
+        <span class="ic-time">${relTime(c.created_at)}</span>
+      </div>
+    </div>`).join('');
+}
+function commentBtnLabel(cCount) {
+  if (cCount > 2) return `💬 View all ${cCount} comments`;
+  if (cCount > 0) return `💬 ${cCount} comment${cCount>1?'s':''}`;
+  return '💬 Add comment';
 }
 
 function render() {
-  let html = '';
+  let html='';
   for (const cat of CATEGORIES) {
-    const its  = ITEMS.filter(i => i.cat === cat);
-    const done = its.filter(i => checkState[i.id]?.checked).length;
-    const pct  = Math.round((done / its.length) * 100);
+    const col  = CAT_COLORS[cat];
+    const its  = ITEMS.filter(i=>i.cat===cat);
+    const done = its.filter(i=>checkState[i.id]?.checked).length;
+    const pct  = Math.round((done/its.length)*100);
 
     html += `<div class="category" id="${catId(cat)}">
       <div class="cat-header">
-        <div class="cat-title">${cat}</div>
-        <div class="cat-track"><div class="cat-fill" style="width:${pct}%"></div></div>
+        <div class="cat-title" style="color:${col}">${cat}</div>
+        <div class="cat-track"><div class="cat-fill" style="width:${pct}%;background:${col}"></div></div>
         <div class="cat-count">${done}/${its.length}</div>
       </div>`;
 
     for (const item of its) {
-      const s          = checkState[item.id] || {};
+      const s          = checkState[item.id]||{};
       const isDone     = !!s.checked;
-      const doneBy     = s.checked_by
-        ? `✓ ${s.checked_by}${s.updated_at ? ' · ' + formatTs(s.updated_at) : ''}`
-        : '';
+      const doneBy     = s.checked_by ? `✓ ${s.checked_by}${s.updated_at?' · '+formatTs(s.updated_at):''}` : '';
       const needsOwner = item.responsible === 'Not allocated yet';
-      const cCount     = (comments[item.id] || []).length;
+      const cCount     = (comments[item.id]||[]).length;
 
       html += `
-        <div class="item${isDone ? ' done' : ''}" id="row-${item.id}">
+        <div class="item${isDone?' done':''}" id="row-${item.id}" style="border-left-color:${col}">
           <div class="item-top">
-            <div class="cb${isDone ? ' checked' : ''}" onclick="toggle('${item.id}')"></div>
+            <div class="cb${isDone?' checked':''}" id="cb-${item.id}" onclick="toggle('${item.id}')"></div>
             <div class="item-body">
               <div class="item-title">${item.title}</div>
               <div class="item-meta">
-                <b>Responsible:</b> ${item.responsible}${item.contact && item.contact !== '—' ? `<br><b>Contact:</b> ${item.contact}` : ''}${item.notes ? `<br>${item.notes}` : ''}
+                <b>Responsible:</b> ${item.responsible}${item.contact&&item.contact!=='—'?`<br><b>Contact:</b> ${item.contact}`:''}${item.notes?`<br>${item.notes}`:''}
               </div>
-              ${needsOwner ? `<div class="needs-owner">⚠ Needs owner</div>` : ''}
-              ${doneBy ? `<div class="done-by">${doneBy}</div>` : ''}
+              ${needsOwner?`<div class="needs-owner">⚠ Needs owner</div>`:''}
+              ${doneBy?`<div class="done-by">${doneBy}</div>`:''}
             </div>
-            ${item.cost ? `<div class="item-cost">UGX ${item.cost}</div>` : ''}
+            ${item.cost?`<div class="item-cost">UGX ${item.cost}</div>`:''}
           </div>
-          <div class="item-footer">
-            <button class="comment-btn${cCount > 0 ? ' has-comments' : ''}" id="cbtn-${item.id}" onclick="openComments('${item.id}')">
-              💬 ${cCount > 0 ? `${cCount} ${cCount === 1 ? 'comment' : 'comments'}` : 'Comment'}
-            </button>
-          </div>
+          <div class="inline-comments" id="ic-${item.id}">${inlineCommentsHtml(item.id)}</div>
+          <button class="comment-btn${cCount>0?' has-comments':''}" id="cbtn-${item.id}" onclick="openComments('${item.id}')">${commentBtnLabel(cCount)}</button>
         </div>`;
     }
     html += '</div>';
   }
-
   document.getElementById('checklist').innerHTML = html;
   updateProgress();
   renderTabs();
   setupScrollSpy();
 }
 
-function updateProgress() {
-  const done  = ITEMS.filter(i => checkState[i.id]?.checked).length;
-  const total = ITEMS.length;
-  document.getElementById('progress-text').textContent = `${done} / ${total} done`;
-  document.getElementById('progress-fill').style.width  = `${Math.round((done / total) * 100)}%`;
-}
-
-function updateCommentBadge(itemId) {
-  const btn    = document.getElementById(`cbtn-${itemId}`);
-  if (!btn) return;
-  const cCount = (comments[itemId] || []).length;
-  btn.className = `comment-btn${cCount > 0 ? ' has-comments' : ''}`;
-  btn.textContent = cCount > 0 ? `💬 ${cCount} ${cCount === 1 ? 'comment' : 'comments'}` : '💬 Comment';
+function updateInlineAndBadge(itemId) {
+  const cCount = (comments[itemId]||[]).length;
+  const icEl   = document.getElementById(`ic-${itemId}`);
+  if (icEl) icEl.innerHTML = inlineCommentsHtml(itemId);
+  const btn = document.getElementById(`cbtn-${itemId}`);
+  if (btn) { btn.className=`comment-btn${cCount>0?' has-comments':''}`; btn.textContent=commentBtnLabel(cCount); }
   updateTabBadges();
 }
 
 // ── Toggle ────────────────────────────────────────────────────────────────
 async function toggle(id) {
   if (!userName) { showNameModal(); return; }
-  const prev = checkState[id]?.checked || false;
+  const prev = checkState[id]?.checked||false;
   const next = !prev;
-  checkState[id] = { checked: next, checked_by: next ? userName : null, updated_at: new Date().toISOString() };
+  checkState[id] = { checked:next, checked_by:next?userName:null, updated_at:new Date().toISOString() };
   render();
 
-  const { error } = await db.from('wedding_checklist').update({
-    checked:    next,
-    checked_by: next ? userName : null,
-    updated_at: new Date().toISOString(),
-  }).eq('id', id);
-
-  if (error) {
-    console.error(error);
-    checkState[id].checked = prev;
-    render();
-    toast('Could not save — check connection');
-    return;
+  if (next) {
+    const row = document.getElementById(`row-${id}`);
+    if (row) { row.classList.add('bounce'); row.addEventListener('animationend',()=>row.classList.remove('bounce'),{once:true}); }
+    const cb = document.getElementById(`cb-${id}`);
+    if (cb) { const p=document.createElement('span'); p.className='pop-emoji'; p.textContent='🎉'; cb.appendChild(p); setTimeout(()=>p.remove(),700); }
   }
-  toast(next ? 'Marked done!' : 'Unchecked');
+
+  const { error } = await db.from('wedding_checklist').update({
+    checked:next, checked_by:next?userName:null, updated_at:new Date().toISOString()
+  }).eq('id',id);
+  if (error) { console.error(error); checkState[id].checked=prev; render(); toast('Could not save — check connection'); return; }
+  toast(next?'🎉 Marked done!':'Unchecked');
 }
 
-// ── Comment sheet ─────────────────────────────────────────────────────────
+// ── Comments ──────────────────────────────────────────────────────────────
 function openComments(itemId) {
   if (!userName) { showNameModal(); return; }
   activeSheetItemId = itemId;
-  const item = ITEMS.find(i => i.id === itemId);
-  document.getElementById('sheet-title').textContent = item?.title || '';
+  document.getElementById('sheet-title').textContent = ITEMS.find(i=>i.id===itemId)?.title||'';
   renderCommentList();
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('sheet').classList.add('open');
-  setTimeout(() => document.getElementById('comment-input').focus(), 350);
+  setTimeout(()=>document.getElementById('comment-input').focus(),350);
 }
-
 function closeSheet() {
   document.getElementById('sheet-overlay').classList.remove('open');
   document.getElementById('sheet').classList.remove('open');
-  document.getElementById('comment-input').value = '';
-  activeSheetItemId = null;
+  document.getElementById('comment-input').value='';
+  activeSheetItemId=null;
 }
-
-document.getElementById('sheet-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('sheet-overlay')) closeSheet();
-});
-
-function avatarColor(name) {
-  const palette = ['#7B3F00','#2563EB','#7C3AED','#DC2626','#059669','#B45309'];
-  let h = 0;
-  for (const c of name) h = (h * 31 + c.charCodeAt(0)) & 0xFFFFFFFF;
-  return palette[Math.abs(h) % palette.length];
-}
-
-function relTime(ts) {
-  if (!ts) return '';
-  const diff = (Date.now() - new Date(ts)) / 1000;
-  if (diff < 60)    return 'just now';
-  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return new Date(ts).toLocaleDateString('en-UG', { month: 'short', day: 'numeric' });
-}
-
-function esc(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+document.getElementById('sheet-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('sheet-overlay'))closeSheet();});
 
 function renderCommentList() {
   const list  = document.getElementById('comment-list');
-  const cList = (comments[activeSheetItemId] || [])
-    .slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-
-  if (!cList.length) {
-    list.innerHTML = '<div class="no-comments">No comments yet — be the first!</div>';
-    return;
-  }
-  list.innerHTML = cList.map(c => `
-    <div class="comment-item">
+  const cList = (comments[activeSheetItemId]||[]).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
+  if (!cList.length) { list.innerHTML='<div class="no-comments">No comments yet — be the first! 💬</div>'; return; }
+  list.innerHTML = cList.map(c => {
+    const isOwn = c.author===userName;
+    return `<div class="comment-item" id="citem-${c.id}">
       <div class="c-avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
       <div class="c-bubble">
+        ${isOwn?`<button class="c-delete" onclick="deleteComment('${c.id}','${activeSheetItemId}')">✕</button>`:''}
         <div class="c-author">${esc(c.author)}</div>
         <div class="c-text">${esc(c.body)}</div>
         <div class="c-time">${relTime(c.created_at)}</div>
       </div>
-    </div>`).join('');
-  list.scrollTop = list.scrollHeight;
+    </div>`;
+  }).join('');
+  list.scrollTop=list.scrollHeight;
 }
 
 async function submitComment() {
-  if (!activeSheetItemId || !userName) return;
-  const input = document.getElementById('comment-input');
-  const body  = input.value.trim();
+  if (!activeSheetItemId||!userName) return;
+  const input=document.getElementById('comment-input'), body=input.value.trim();
   if (!body) return;
-  input.value = '';
+  input.value='';
+  const tempId='tmp-'+Date.now();
+  const temp={id:tempId,item_id:activeSheetItemId,author:userName,body,created_at:new Date().toISOString()};
+  (comments[activeSheetItemId]=comments[activeSheetItemId]||[]).push(temp);
+  renderCommentList(); updateInlineAndBadge(activeSheetItemId);
 
-  const tempId = 'tmp-' + Date.now();
-  const temp   = { id: tempId, item_id: activeSheetItemId, author: userName, body, created_at: new Date().toISOString() };
-  comments[activeSheetItemId] = [...(comments[activeSheetItemId] || []), temp];
-  renderCommentList();
-  updateCommentBadge(activeSheetItemId);
-
-  const { data, error } = await db.from('wedding_checklist_comments')
-    .insert({ item_id: activeSheetItemId, author: userName, body })
-    .select().single();
-
+  const {data,error}=await db.from('wedding_checklist_comments').insert({item_id:activeSheetItemId,author:userName,body}).select().single();
   if (error) {
     console.error(error);
-    comments[activeSheetItemId] = (comments[activeSheetItemId] || []).filter(c => c.id !== tempId);
-    if (activeSheetItemId) renderCommentList();
-    updateCommentBadge(activeSheetItemId);
-    toast('Could not post comment');
-    return;
+    comments[activeSheetItemId]=(comments[activeSheetItemId]||[]).filter(c=>c.id!==tempId);
+    if(activeSheetItemId)renderCommentList(); updateInlineAndBadge(activeSheetItemId);
+    toast('Could not post comment'); return;
   }
-  // Swap temp with the real row
-  comments[activeSheetItemId] = (comments[activeSheetItemId] || []).map(c => c.id === tempId ? data : c);
-  if (activeSheetItemId) renderCommentList();
+  comments[activeSheetItemId]=(comments[activeSheetItemId]||[]).map(c=>c.id===tempId?data:c);
+  if(activeSheetItemId)renderCommentList();
 }
 
-document.getElementById('comment-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitComment(); });
+async function deleteComment(commentId, itemId) {
+  const prev=(comments[itemId]||[]).slice();
+  comments[itemId]=(comments[itemId]||[]).filter(c=>c.id!==commentId);
+  if(activeSheetItemId===itemId)renderCommentList(); updateInlineAndBadge(itemId);
+  const {error}=await db.from('wedding_checklist_comments').delete().eq('id',commentId);
+  if (error) { console.error(error); comments[itemId]=prev; if(activeSheetItemId===itemId)renderCommentList(); updateInlineAndBadge(itemId); toast('Could not delete'); }
+}
+
+document.getElementById('comment-input').addEventListener('keydown',e=>{if(e.key==='Enter')submitComment();});
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer;
 function toast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
 }
 
 // ── Load ──────────────────────────────────────────────────────────────────
 async function load() {
-  const [{ data: checks, error: e1 }, { data: coms, error: e2 }] = await Promise.all([
+  const [{data:checks,error:e1},{data:coms,error:e2}]=await Promise.all([
     db.from('wedding_checklist').select('*'),
     db.from('wedding_checklist_comments').select('*').order('created_at'),
   ]);
-  if (e1 || e2) { toast('Could not load — check connection'); return; }
-
-  checkState = {};
-  for (const r of checks) {
-    checkState[r.id] = { checked: r.checked, checked_by: r.checked_by, updated_at: r.updated_at };
-  }
-  comments = {};
-  for (const c of coms) {
-    (comments[c.item_id] = comments[c.item_id] || []).push(c);
-  }
+  if(e1||e2){toast('Could not load — check connection');return;}
+  checkState={};
+  for(const r of checks) checkState[r.id]={checked:r.checked,checked_by:r.checked_by,updated_at:r.updated_at};
+  comments={};
+  for(const c of coms)(comments[c.item_id]=comments[c.item_id]||[]).push(c);
   render();
 }
 
 // ── Realtime ──────────────────────────────────────────────────────────────
 function subscribeRealtime() {
   db.channel('wcl-checks')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wedding_checklist' }, ({ new: r }) => {
-      checkState[r.id] = { checked: r.checked, checked_by: r.checked_by, updated_at: r.updated_at };
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'wedding_checklist'},({new:r})=>{
+      checkState[r.id]={checked:r.checked,checked_by:r.checked_by,updated_at:r.updated_at};
       render();
-      const item = ITEMS.find(i => i.id === r.id);
-      if (r.checked && r.checked_by && r.checked_by !== userName && item) {
-        toast(`${r.checked_by} ticked: ${item.title}`);
-      }
-    })
-    .subscribe();
+      const item=ITEMS.find(i=>i.id===r.id);
+      if(r.checked&&r.checked_by&&r.checked_by!==userName&&item) toast(`🎉 ${r.checked_by} ticked: ${item.title}`);
+    }).subscribe();
 
   db.channel('wcl-comments')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wedding_checklist_comments' }, ({ new: c }) => {
-      if (c.author === userName) return;  // we already added it optimistically
-      (comments[c.item_id] = comments[c.item_id] || []).push(c);
-      updateCommentBadge(c.item_id);
-      if (activeSheetItemId === c.item_id) renderCommentList();
-      const item = ITEMS.find(i => i.id === c.item_id);
-      toast(`${c.author} commented on: ${item?.title || c.item_id}`);
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'wedding_checklist_comments'},({new:c})=>{
+      if(c.author===userName)return;
+      (comments[c.item_id]=comments[c.item_id]||[]).push(c);
+      updateInlineAndBadge(c.item_id);
+      if(activeSheetItemId===c.item_id)renderCommentList();
+      const item=ITEMS.find(i=>i.id===c.item_id);
+      toast(`💬 ${c.author} on: ${item?.title||c.item_id}`);
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'wedding_checklist_comments'},({old:c})=>{
+      if(!c.item_id)return;
+      comments[c.item_id]=(comments[c.item_id]||[]).filter(x=>x.id!==c.id);
+      updateInlineAndBadge(c.item_id);
+      if(activeSheetItemId===c.item_id)renderCommentList();
     })
     .subscribe();
 }
