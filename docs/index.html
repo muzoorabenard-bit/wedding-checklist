@@ -216,12 +216,16 @@
     .modal { background: white; border-radius: 20px; padding: 26px 22px; width: 100%; max-width: 320px; }
     .modal h2 { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
     .modal p  { font-size: 0.82rem; color: #6b7280; margin-bottom: 18px; line-height: 1.5; }
-    .modal input {
+    .modal select {
       width: 100%; padding: 12px 14px;
       border: 2px solid #e5e7eb; border-radius: 10px;
       font-size: 1rem; outline: none; margin-bottom: 12px; font-family: inherit;
+      background: white; color: #1a1a1a; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237C3AED' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+      cursor: pointer;
     }
-    .modal input:focus { border-color: var(--purple); }
+    .modal select:focus { border-color: var(--purple); }
     .modal button {
       width: 100%; padding: 13px;
       background: linear-gradient(135deg, var(--purple), var(--pink));
@@ -354,7 +358,17 @@
   <div class="modal">
     <h2>Hey there! 👋</h2>
     <p>Enter your name so the crew knows who's ticking things off and leaving comments.</p>
-    <input type="text" id="name-input" placeholder="Your name" maxlength="30" autocomplete="name" />
+    <select id="name-input">
+      <option value="">— Choose your name —</option>
+      <option>Audrey</option>
+      <option>Rita</option>
+      <option>Armstrong</option>
+      <option>Derrick</option>
+      <option>Chairman</option>
+      <option>Kenneth</option>
+      <option>Mona</option>
+      <option>Jennifer</option>
+    </select>
     <button onclick="saveName()">Let's go! 🎉</button>
   </div>
 </div>
@@ -496,12 +510,16 @@ function showNameModal() { document.getElementById('name-overlay').classList.rem
 function hideNameModal() { document.getElementById('name-overlay').classList.add('hidden'); }
 function updateUserLabel() { document.getElementById('user-label').textContent = userName ? `${userName} ✎` : ''; }
 function saveName() {
-  const v = document.getElementById('name-input').value.trim();
+  const v = document.getElementById('name-input').value;
   if (!v) { document.getElementById('name-input').focus(); return; }
   userName = v; localStorage.setItem('wcl_name', userName);
   hideNameModal(); updateUserLabel();
 }
-function changeName() { document.getElementById('name-input').value = userName; showNameModal(); }
+function changeName() {
+  const sel = document.getElementById('name-input');
+  sel.value = userName || '';
+  showNameModal();
+}
 document.getElementById('name-input').addEventListener('keydown', e => { if (e.key==='Enter') saveName(); });
 if (!userName) showNameModal(); else { hideNameModal(); updateUserLabel(); }
 
