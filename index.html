@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Launch — Action Checklist</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #faf7f4;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #7B3F00 0%, #C0692A 100%);
+      color: white;
+      padding: 22px 16px 18px;
+      text-align: center;
+    }
+    header h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
+    header p { font-size: 0.82rem; opacity: 0.82; }
+
+    .status-bar {
+      background: white;
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 0.82rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .progress-text { color: #555; flex-shrink: 0; }
+    .progress-track {
+      flex: 1;
+      height: 6px;
+      background: #e8e8e8;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #4CAF50;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+    .user-label {
+      font-size: 0.78rem;
+      color: #888;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .category { margin: 14px 14px 6px; }
+    .category-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.1px;
+      color: #7B3F00;
+      padding: 0 2px;
+      margin-bottom: 8px;
+    }
+
+    .item {
+      background: white;
+      border-radius: 12px;
+      padding: 13px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+      transition: opacity 0.25s, transform 0.15s;
+      cursor: default;
+    }
+    .item.done { opacity: 0.55; }
+    .item.done .item-title {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+    .item.loading { opacity: 0.7; }
+
+    .cb {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid #ddd;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+      margin-top: 1px;
+      user-select: none;
+    }
+    .cb:active { transform: scale(0.9); }
+    .cb.checked {
+      background: #4CAF50;
+      border-color: #4CAF50;
+    }
+    .cb.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .item-body { flex: 1; min-width: 0; }
+    .item-title { font-weight: 600; font-size: 0.93rem; margin-bottom: 4px; }
+    .item-meta { font-size: 0.76rem; color: #666; line-height: 1.55; }
+    .item-meta b { color: #444; }
+    .item-cost {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #7B3F00;
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+    .done-by {
+      font-size: 0.72rem;
+      color: #4CAF50;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    /* Modal */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.48);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 20px;
+    }
+    .overlay.hidden { display: none; }
+    .modal {
+      background: white;
+      border-radius: 18px;
+      padding: 26px 22px;
+      width: 100%;
+      max-width: 320px;
+    }
+    .modal h2 { font-size: 1.1rem; margin-bottom: 6px; }
+    .modal p { font-size: 0.84rem; color: #666; margin-bottom: 18px; line-height: 1.5; }
+    .modal input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 9px;
+      font-size: 1rem;
+      outline: none;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .modal input:focus { border-color: #7B3F00; }
+    .modal button {
+      width: 100%;
+      padding: 13px;
+      background: #7B3F00;
+      color: white;
+      border: none;
+      border-radius: 9px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal button:active { opacity: 0.85; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(30,30,30,0.88);
+      color: white;
+      padding: 9px 18px;
+      border-radius: 22px;
+      font-size: 0.82rem;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      white-space: nowrap;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    footer { height: 50px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Wedding Launch — Action Checklist</h1>
+  <p>Meeting 22 May 2026 &nbsp;·&nbsp; Tap any item to mark it done</p>
+</header>
+
+<div class="status-bar">
+  <span class="progress-text" id="progress-text">Loading…</span>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <span class="user-label" id="user-label" onclick="changeName()" title="Tap to change name"></span>
+</div>
+
+<div id="checklist"></div>
+<footer></footer>
+
+<!-- Name modal -->
+<div class="overlay" id="name-overlay">
+  <div class="modal">
+    <h2>Who are you? 👋</h2>
+    <p>Enter your name so the group can see who marked items done.</p>
+    <input type="text" id="name-input" placeholder="Your name" maxlength="30" autocomplete="name" />
+    <button onclick="saveName()">Let's go</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://ejeupxhrfecsqobkxhun.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqZXVweGhyZmVjc3FvYmt4aHVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDg4MDEsImV4cCI6MjA4NjQ4NDgwMX0.LiYUhHxNmfKDAH3ABuQhEIUtVKYTyf38t7HeEdfHg0g';
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ITEMS = [
+  // ── Venue Items ──────────────────────────────────────────────────────────
+  { id: 'venue-tents',     cat: 'Venue Items',    title: 'Tents',
+    responsible: 'Audrey', contact: '0774064055',
+    notes: '2 tents (100 seater) at 150,000/=', cost: '300,000' },
+
+  { id: 'venue-lighting',  cat: 'Venue Items',    title: 'Lighting',
+    responsible: 'Chairman', contact: 'Derrick · 0784 604772',
+    notes: 'Lighting arrangements to be made', cost: '' },
+
+  { id: 'venue-tables',    cat: 'Venue Items',    title: 'Tables',
+    responsible: 'Audrey', contact: 'Audrey',
+    notes: 'Tables at 15,000/=', cost: '' },
+
+  { id: 'venue-chairs',    cat: 'Venue Items',    title: 'Chairs',
+    responsible: 'Audrey', contact: 'Audrey',
+    notes: 'Chair at 500/=', cost: '' },
+
+  { id: 'venue-transport', cat: 'Venue Items',    title: 'Transport',
+    responsible: '—', contact: '—',
+    notes: '', cost: '50,000' },
+
+  { id: 'venue-linens',    cat: 'Venue Items',    title: 'Table linens',
+    responsible: 'Audrey', contact: 'Audrey',
+    notes: '5,000/= per linen · all venue items subtotal: 830,000', cost: '' },
+
+  { id: 'venue-pa',        cat: 'Venue Items',    title: 'PA system',
+    responsible: 'Rita', contact: '0774 620424',
+    notes: 'Includes sound system, DJ transport and generator', cost: '400,000' },
+
+  // ── Food & Drinks ────────────────────────────────────────────────────────
+  { id: 'food-food',       cat: 'Food & Drinks',  title: 'Food for guests (~200 people)',
+    responsible: 'Audrey', contact: 'Audrey',
+    notes: 'Budget discussed', cost: '2,995,000' },
+
+  { id: 'food-beer',       cat: 'Food & Drinks',  title: 'Beer procurement',
+    responsible: 'Armstrong', contact: 'Armstrong',
+    notes: 'Approx. 400 units (16 crates)', cost: '1,600,000' },
+
+  { id: 'food-cocktails',  cat: 'Food & Drinks',  title: 'Cocktails',
+    responsible: 'Rita', contact: 'Rita',
+    notes: 'Approx. 150', cost: '1,500,000' },
+
+  { id: 'food-whisky',     cat: 'Food & Drinks',  title: 'Whisky',
+    responsible: 'Armstrong', contact: 'Armstrong',
+    notes: '4 bottles', cost: '' },
+
+  { id: 'food-water',      cat: 'Food & Drinks',  title: 'Water',
+    responsible: 'Drinks team', contact: 'Audrey',
+    notes: 'Confirm quantities', cost: '' },
+
+  { id: 'food-soda',       cat: 'Food & Drinks',  title: 'Soda',
+    responsible: 'Drinks team', contact: 'Audrey',
+    notes: 'Confirm quantities', cost: '' },
+
+  // ── MC & Activities ──────────────────────────────────────────────────────
+  { id: 'mc-mc',           cat: 'MC & Activities', title: 'Coordinate with MC',
+    responsible: 'Audrey', contact: 'Audrey',
+    notes: 'Finalize MC arrangements', cost: '' },
+
+  { id: 'mc-raffle',       cat: 'MC & Activities', title: 'Raffle coordination',
+    responsible: 'MC & Mona', contact: 'Mona · 77 509309',
+    notes: 'Organize prizes — raffles at 10,000 and 20,000', cost: '' },
+
+  { id: 'mc-auction',      cat: 'MC & Activities', title: 'Auction coordination',
+    responsible: 'MC', contact: 'MC',
+    notes: 'Coordinate auction flow', cost: '' },
+
+  { id: 'mc-auction-items', cat: 'MC & Activities', title: 'Recommend auction items',
+    responsible: 'Kenneth, Armstrong & Jennifer',
+    contact: 'Kenneth · 782 032990 / Armstrong',
+    notes: 'Whisky (Gold Reserve Dexter), Wine (Nedburg — Armstrong pledged), Rice cooker', cost: '' },
+
+  { id: 'mc-shopping',     cat: 'MC & Activities', title: 'Shopping vouchers',
+    responsible: 'Rita / Jenny', contact: 'Rita',
+    notes: 'Voucher prizes — 200,000 split into 4', cost: '' },
+
+  { id: 'mc-fuel',         cat: 'MC & Activities', title: 'Fuel vouchers',
+    responsible: 'Chairman & Derrick', contact: 'Derrick',
+    notes: 'Voucher prizes — 250,000 split into 4 (some 80k, some 120k)', cost: '' },
+
+  { id: 'mc-vehicle',      cat: 'MC & Activities', title: 'Vehicle servicing',
+    responsible: 'Not allocated yet', contact: '—',
+    notes: '300,000 split into 2', cost: '' },
+
+  { id: 'mc-spa',          cat: 'MC & Activities', title: 'Spa package',
+    responsible: 'Rita', contact: 'Rita',
+    notes: "Spa package 150–250k — Don's organis / Calabash", cost: '' },
+];
+
+// ── State ─────────────────────────────────────────────────────────────────
+let state = {};   // { [id]: { checked, checked_by, updated_at } }
+let userName = localStorage.getItem('wcl_name') || '';
+
+// ── Name handling ─────────────────────────────────────────────────────────
+function showNameModal() {
+  document.getElementById('name-overlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('name-input').focus(), 100);
+}
+function hideNameModal() {
+  document.getElementById('name-overlay').classList.add('hidden');
+}
+function updateUserLabel() {
+  document.getElementById('user-label').textContent = userName ? `You: ${userName} ✎` : '';
+}
+function saveName() {
+  const v = document.getElementById('name-input').value.trim();
+  if (!v) { document.getElementById('name-input').focus(); return; }
+  userName = v;
+  localStorage.setItem('wcl_name', userName);
+  hideNameModal();
+  updateUserLabel();
+}
+function changeName() {
+  document.getElementById('name-input').value = userName;
+  showNameModal();
+}
+document.getElementById('name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveName();
+});
+
+if (!userName) showNameModal();
+else { hideNameModal(); updateUserLabel(); }
+
+// ── Render ────────────────────────────────────────────────────────────────
+function formatTs(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-UG', { month: 'short', day: 'numeric' })
+    + ' ' + d.toLocaleTimeString('en-UG', { hour: '2-digit', minute: '2-digit', hour12: true });
+}
+
+function render() {
+  const categories = [...new Set(ITEMS.map(i => i.cat))];
+  let html = '';
+
+  for (const cat of categories) {
+    html += `<div class="category"><div class="category-title">${cat}</div>`;
+    for (const item of ITEMS.filter(i => i.cat === cat)) {
+      const s = state[item.id] || {};
+      const done = !!s.checked;
+      const doneBy = s.checked_by ? `✓ Done by ${s.checked_by}${s.updated_at ? ' · ' + formatTs(s.updated_at) : ''}` : '';
+      html += `
+        <div class="item${done ? ' done' : ''}" id="row-${item.id}">
+          <div class="cb${done ? ' checked' : ''}" onclick="toggle('${item.id}')"></div>
+          <div class="item-body">
+            <div class="item-title">${item.title}</div>
+            <div class="item-meta">
+              <b>Responsible:</b> ${item.responsible}${item.contact && item.contact !== '—' ? `<br><b>Contact:</b> ${item.contact}` : ''}${item.notes ? `<br>${item.notes}` : ''}
+            </div>
+            ${doneBy ? `<div class="done-by">${doneBy}</div>` : ''}
+          </div>
+          ${item.cost ? `<div class="item-cost">UGX ${item.cost}</div>` : ''}
+        </div>`;
+    }
+    html += '</div>';
+  }
+  document.getElementById('checklist').innerHTML = html;
+  updateProgress();
+}
+
+function updateProgress() {
+  const done = ITEMS.filter(i => state[i.id]?.checked).length;
+  const total = ITEMS.length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-text').textContent = `${done} / ${total} done`;
+  document.getElementById('progress-fill').style.width = `${pct}%`;
+}
+
+// ── Toggle ────────────────────────────────────────────────────────────────
+async function toggle(id) {
+  if (!userName) { showNameModal(); return; }
+
+  const prev = state[id]?.checked || false;
+  const next = !prev;
+
+  // Optimistic update
+  state[id] = { checked: next, checked_by: next ? userName : null, updated_at: new Date().toISOString() };
+  render();
+
+  const { error } = await db.from('wedding_checklist').update({
+    checked: next,
+    checked_by: next ? userName : null,
+    updated_at: new Date().toISOString(),
+  }).eq('id', id);
+
+  if (error) {
+    console.error(error);
+    state[id] = { checked: prev, checked_by: prev ? state[id]?.checked_by : null };
+    render();
+    toast('Could not save — check your connection');
+    return;
+  }
+  toast(next ? 'Marked done!' : 'Unchecked');
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Load + Realtime ───────────────────────────────────────────────────────
+async function load() {
+  document.getElementById('progress-text').textContent = 'Loading…';
+  const { data, error } = await db.from('wedding_checklist').select('*');
+  if (error) { console.error(error); toast('Could not load data'); return; }
+  state = {};
+  for (const row of data) {
+    state[row.id] = { checked: row.checked, checked_by: row.checked_by, updated_at: row.updated_at };
+  }
+  render();
+}
+
+function subscribeRealtime() {
+  db.channel('wcl-realtime')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wedding_checklist' }, payload => {
+      const { id, checked, checked_by, updated_at } = payload.new;
+      state[id] = { checked, checked_by, updated_at };
+      render();
+      const item = ITEMS.find(i => i.id === id);
+      if (checked && checked_by && checked_by !== userName && item) {
+        toast(`${checked_by} just ticked: ${item.title}`);
+      }
+    })
+    .subscribe();
+}
+
+load();
+subscribeRealtime();
+</script>
+</body>
+</html>
