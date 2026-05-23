@@ -2,90 +2,158 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Launch — Action Checklist</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Wedding Launch — Checklist</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    :root {
+      --brown: #7B3F00;
+      --brown-light: #C0692A;
+      --green: #4CAF50;
+      --amber: #D97706;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: #faf7f4;
-      color: #333;
+      background: #f5f1ed;
+      color: #1a1a1a;
       min-height: 100vh;
     }
 
+    /* ── Header ── */
     header {
-      background: linear-gradient(135deg, #7B3F00 0%, #C0692A 100%);
+      background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
       color: white;
-      padding: 22px 16px 18px;
+      padding: 20px 16px 16px;
       text-align: center;
     }
-    header h1 { font-size: 1.35rem; font-weight: 700; margin-bottom: 4px; }
-    header p { font-size: 0.82rem; opacity: 0.82; }
+    header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 3px; }
+    header p  { font-size: 0.8rem; opacity: 0.8; }
 
+    /* ── Status bar ── */
     .status-bar {
       background: white;
-      padding: 11px 16px;
+      padding: 10px 16px;
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid #eee;
-      font-size: 0.82rem;
+      border-bottom: 1px solid #ece8e4;
       position: sticky;
       top: 0;
-      z-index: 10;
+      z-index: 30;
     }
-    .progress-text { color: #555; flex-shrink: 0; }
+    .progress-text { font-size: 0.8rem; font-weight: 700; color: #555; flex-shrink: 0; }
     .progress-track {
       flex: 1;
-      height: 6px;
-      background: #e8e8e8;
+      height: 5px;
+      background: #e5e0db;
       border-radius: 3px;
       overflow: hidden;
     }
     .progress-fill {
       height: 100%;
-      background: #4CAF50;
+      background: var(--green);
       border-radius: 3px;
       transition: width 0.4s ease;
       width: 0%;
     }
     .user-label {
-      font-size: 0.78rem;
-      color: #888;
+      font-size: 0.75rem;
+      color: #aaa;
       flex-shrink: 0;
       cursor: pointer;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .category { margin: 14px 14px 6px; }
-    .category-title {
-      font-size: 0.68rem;
+    /* ── Tab strip ── */
+    .tab-strip {
+      background: white;
+      border-bottom: 1px solid #ece8e4;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      position: sticky;
+      top: 37px;
+      z-index: 20;
+    }
+    .tab-strip::-webkit-scrollbar { display: none; }
+    .tab {
+      flex-shrink: 0;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #999;
+      cursor: pointer;
+      border-bottom: 2.5px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .tab.active { color: var(--brown); border-bottom-color: var(--brown); }
+    .tab-badge {
+      font-size: 0.66rem;
+      font-weight: 700;
+      background: #f0ebe5;
+      color: #999;
+      padding: 1px 6px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .tab.active .tab-badge { background: #f5e8d8; color: var(--brown); }
+
+    /* ── Category section ── */
+    .category {
+      margin: 14px 14px 4px;
+      scroll-margin-top: 90px;
+    }
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+    .cat-title {
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 1.1px;
-      color: #7B3F00;
-      padding: 0 2px;
-      margin-bottom: 8px;
+      letter-spacing: 1px;
+      color: var(--brown);
+      flex-shrink: 0;
     }
+    .cat-track {
+      flex: 1;
+      height: 4px;
+      background: #e5e0db;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .cat-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 2px;
+      transition: width 0.4s;
+    }
+    .cat-count { font-size: 0.68rem; font-weight: 600; color: #aaa; flex-shrink: 0; }
 
+    /* ── Item card ── */
     .item {
       background: white;
-      border-radius: 12px;
-      padding: 13px 14px;
+      border-radius: 13px;
+      padding: 13px 14px 10px;
       margin-bottom: 8px;
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-      transition: opacity 0.25s, transform 0.15s;
-      cursor: default;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: opacity 0.25s;
     }
-    .item.done { opacity: 0.55; }
-    .item.done .item-title {
-      text-decoration: line-through;
-      color: #aaa;
-    }
-    .item.loading { opacity: 0.7; }
+    .item.done { opacity: 0.48; }
+    .item.done .item-title { text-decoration: line-through; color: #bbb; }
+
+    .item-top { display: flex; gap: 12px; align-items: flex-start; }
 
     .cb {
       width: 26px;
@@ -97,46 +165,59 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s, border-color 0.2s;
+      transition: background 0.2s, border-color 0.2s, transform 0.1s;
       margin-top: 1px;
       user-select: none;
     }
-    .cb:active { transform: scale(0.9); }
-    .cb.checked {
-      background: #4CAF50;
-      border-color: #4CAF50;
-    }
-    .cb.checked::after {
-      content: '✓';
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      line-height: 1;
-    }
+    .cb:active { transform: scale(0.86); }
+    .cb.checked { background: var(--green); border-color: var(--green); }
+    .cb.checked::after { content: '✓'; color: white; font-size: 14px; font-weight: 700; }
 
     .item-body { flex: 1; min-width: 0; }
-    .item-title { font-weight: 600; font-size: 0.93rem; margin-bottom: 4px; }
-    .item-meta { font-size: 0.76rem; color: #666; line-height: 1.55; }
-    .item-meta b { color: #444; }
-    .item-cost {
-      font-size: 0.76rem;
+    .item-title { font-weight: 600; font-size: 0.92rem; margin-bottom: 4px; }
+    .item-meta  { font-size: 0.75rem; color: #777; line-height: 1.55; }
+    .item-meta b { color: #555; }
+
+    .needs-owner {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.68rem;
       font-weight: 700;
-      color: #7B3F00;
-      white-space: nowrap;
-      padding-top: 2px;
-    }
-    .done-by {
-      font-size: 0.72rem;
-      color: #4CAF50;
-      font-weight: 600;
+      color: var(--amber);
+      background: #FFF8ED;
+      border: 1px solid #FDE68A;
+      border-radius: 4px;
+      padding: 1px 7px;
       margin-top: 5px;
     }
+    .done-by { font-size: 0.71rem; color: var(--green); font-weight: 600; margin-top: 5px; }
+    .item-cost { font-size: 0.74rem; font-weight: 700; color: var(--brown); white-space: nowrap; padding-top: 2px; flex-shrink: 0; }
 
-    /* Modal */
+    .item-footer { display: flex; justify-content: flex-end; margin-top: 9px; }
+    .comment-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      color: #aaa;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 14px;
+      background: #f5f1ed;
+      border: none;
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+      font-family: inherit;
+    }
+    .comment-btn:active { background: #ece8e4; }
+    .comment-btn.has-comments { color: var(--brown); background: #f5ead8; }
+
+    /* ── Name modal ── */
     .overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.48);
+      background: rgba(0,0,0,0.5);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -147,58 +228,184 @@
     .modal {
       background: white;
       border-radius: 18px;
-      padding: 26px 22px;
+      padding: 24px 20px;
       width: 100%;
       max-width: 320px;
     }
-    .modal h2 { font-size: 1.1rem; margin-bottom: 6px; }
-    .modal p { font-size: 0.84rem; color: #666; margin-bottom: 18px; line-height: 1.5; }
+    .modal h2 { font-size: 1.05rem; margin-bottom: 6px; }
+    .modal p  { font-size: 0.82rem; color: #666; margin-bottom: 16px; line-height: 1.5; }
     .modal input {
       width: 100%;
       padding: 11px 14px;
-      border: 2px solid #e0e0e0;
+      border: 2px solid #e0dbd5;
       border-radius: 9px;
       font-size: 1rem;
       outline: none;
       margin-bottom: 12px;
-      transition: border-color 0.2s;
+      font-family: inherit;
     }
-    .modal input:focus { border-color: #7B3F00; }
+    .modal input:focus { border-color: var(--brown); }
     .modal button {
       width: 100%;
-      padding: 13px;
-      background: #7B3F00;
+      padding: 12px;
+      background: var(--brown);
       color: white;
       border: none;
       border-radius: 9px;
       font-size: 1rem;
       font-weight: 600;
       cursor: pointer;
+      font-family: inherit;
     }
     .modal button:active { opacity: 0.85; }
 
-    /* Toast */
+    /* ── Comment sheet ── */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.42);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+    .sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 78vh;
+      background: white;
+      border-radius: 20px 20px 0 0;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      z-index: 101;
+    }
+    .sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: #ddd;
+      border-radius: 2px;
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+    .sheet-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .sheet-title { flex: 1; font-weight: 700; font-size: 0.95rem; }
+    .sheet-close {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: #f0ede9;
+      color: #666;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .comment-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 16px 6px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .no-comments { text-align: center; color: #ccc; font-size: 0.82rem; padding: 28px 0; }
+
+    .comment-item { display: flex; gap: 10px; margin-bottom: 14px; }
+    .c-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .c-bubble {
+      background: #f5f1ed;
+      border-radius: 4px 14px 14px 14px;
+      padding: 8px 12px;
+      flex: 1;
+      min-width: 0;
+    }
+    .c-author { font-size: 0.72rem; font-weight: 700; color: var(--brown); margin-bottom: 3px; }
+    .c-text   { font-size: 0.85rem; color: #333; line-height: 1.45; word-break: break-word; }
+    .c-time   { font-size: 0.66rem; color: #ccc; margin-top: 4px; }
+
+    .comment-footer {
+      display: flex;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid #eee;
+      padding-bottom: max(12px, env(safe-area-inset-bottom));
+      flex-shrink: 0;
+    }
+    .comment-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #e5e0db;
+      border-radius: 22px;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: inherit;
+    }
+    .comment-input:focus { border-color: var(--brown); }
+    .comment-send {
+      padding: 10px 18px;
+      background: var(--brown);
+      color: white;
+      border: none;
+      border-radius: 22px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      font-family: inherit;
+    }
+    .comment-send:active { opacity: 0.8; }
+
+    /* ── Toast ── */
     .toast {
       position: fixed;
-      bottom: 20px;
+      bottom: 22px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: rgba(30,30,30,0.88);
+      transform: translateX(-50%) translateY(16px);
+      background: rgba(20,20,20,0.88);
       color: white;
       padding: 9px 18px;
       border-radius: 22px;
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       opacity: 0;
       transition: opacity 0.25s, transform 0.25s;
       pointer-events: none;
       white-space: nowrap;
-      max-width: 90vw;
+      max-width: 86vw;
       text-align: center;
+      z-index: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     footer { height: 50px; }
   </style>
@@ -206,7 +413,7 @@
 <body>
 
 <header>
-  <h1>Wedding Launch — Action Checklist</h1>
+  <h1>Wedding Launch — Checklist</h1>
   <p>Meeting 22 May 2026 &nbsp;·&nbsp; Tap any item to mark it done</p>
 </header>
 
@@ -216,6 +423,7 @@
   <span class="user-label" id="user-label" onclick="changeName()" title="Tap to change name"></span>
 </div>
 
+<div class="tab-strip" id="tab-strip"></div>
 <div id="checklist"></div>
 <footer></footer>
 
@@ -223,87 +431,100 @@
 <div class="overlay" id="name-overlay">
   <div class="modal">
     <h2>Who are you? 👋</h2>
-    <p>Enter your name so the group can see who marked items done.</p>
+    <p>Enter your name so everyone can see who checked items off and left comments.</p>
     <input type="text" id="name-input" placeholder="Your name" maxlength="30" autocomplete="name" />
     <button onclick="saveName()">Let's go</button>
+  </div>
+</div>
+
+<!-- Comment sheet -->
+<div class="sheet-overlay" id="sheet-overlay">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title" id="sheet-title">Comments</div>
+      <button class="sheet-close" onclick="closeSheet()">✕</button>
+    </div>
+    <div class="comment-list" id="comment-list"></div>
+    <div class="comment-footer">
+      <input type="text" class="comment-input" id="comment-input" placeholder="Add a comment…" maxlength="300" />
+      <button class="comment-send" onclick="submitComment()">Send</button>
+    </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://ejeupxhrfecsqobkxhun.supabase.co';
+const SUPABASE_URL     = 'https://ejeupxhrfecsqobkxhun.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVqZXVweGhyZmVjc3FvYmt4aHVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA5MDg4MDEsImV4cCI6MjA4NjQ4NDgwMX0.LiYUhHxNmfKDAH3ABuQhEIUtVKYTyf38t7HeEdfHg0g';
 
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const ITEMS = [
-  // ── Venue Items ──────────────────────────────────────────────────────────
-  { id: 'venue-tents',     cat: 'Venue Items',    title: 'Tents',
-    responsible: 'Audrey', contact: '0774064055',
+  { id: 'venue-tents',      cat: 'Venue Items',     title: 'Tents',
+    responsible: 'Audrey',                 contact: '0774064055',
     notes: '2 tents (100 seater) at 150,000/=', cost: '300,000' },
 
-  { id: 'venue-lighting',  cat: 'Venue Items',    title: 'Lighting',
-    responsible: 'Chairman', contact: 'Derrick · 0784 604772',
+  { id: 'venue-lighting',   cat: 'Venue Items',     title: 'Lighting',
+    responsible: 'Chairman',               contact: 'Derrick · 0784 604772',
     notes: 'Lighting arrangements to be made', cost: '' },
 
-  { id: 'venue-tables',    cat: 'Venue Items',    title: 'Tables',
-    responsible: 'Audrey', contact: 'Audrey',
+  { id: 'venue-tables',     cat: 'Venue Items',     title: 'Tables',
+    responsible: 'Audrey',                 contact: 'Audrey',
     notes: 'Tables at 15,000/=', cost: '' },
 
-  { id: 'venue-chairs',    cat: 'Venue Items',    title: 'Chairs',
-    responsible: 'Audrey', contact: 'Audrey',
+  { id: 'venue-chairs',     cat: 'Venue Items',     title: 'Chairs',
+    responsible: 'Audrey',                 contact: 'Audrey',
     notes: 'Chair at 500/=', cost: '' },
 
-  { id: 'venue-transport', cat: 'Venue Items',    title: 'Transport',
-    responsible: '—', contact: '—',
+  { id: 'venue-transport',  cat: 'Venue Items',     title: 'Transport',
+    responsible: '—',                      contact: '—',
     notes: '', cost: '50,000' },
 
-  { id: 'venue-linens',    cat: 'Venue Items',    title: 'Table linens',
-    responsible: 'Audrey', contact: 'Audrey',
-    notes: '5,000/= per linen · all venue items subtotal: 830,000', cost: '' },
+  { id: 'venue-linens',     cat: 'Venue Items',     title: 'Table linens',
+    responsible: 'Audrey',                 contact: 'Audrey',
+    notes: '5,000/= per linen · venue items subtotal: 830,000', cost: '' },
 
-  { id: 'venue-pa',        cat: 'Venue Items',    title: 'PA system',
-    responsible: 'Rita', contact: '0774 620424',
-    notes: 'Includes sound system, DJ transport and generator', cost: '400,000' },
+  { id: 'venue-pa',         cat: 'Venue Items',     title: 'PA system',
+    responsible: 'Rita',                   contact: '0774 620424',
+    notes: 'Sound system, DJ transport and generator', cost: '400,000' },
 
-  // ── Food & Drinks ────────────────────────────────────────────────────────
-  { id: 'food-food',       cat: 'Food & Drinks',  title: 'Food for guests (~200 people)',
-    responsible: 'Audrey', contact: 'Audrey',
+  { id: 'food-food',        cat: 'Food & Drinks',   title: 'Food for guests (~200 people)',
+    responsible: 'Audrey',                 contact: 'Audrey',
     notes: 'Budget discussed', cost: '2,995,000' },
 
-  { id: 'food-beer',       cat: 'Food & Drinks',  title: 'Beer procurement',
-    responsible: 'Armstrong', contact: 'Armstrong',
+  { id: 'food-beer',        cat: 'Food & Drinks',   title: 'Beer procurement',
+    responsible: 'Armstrong',              contact: 'Armstrong',
     notes: 'Approx. 400 units (16 crates)', cost: '1,600,000' },
 
-  { id: 'food-cocktails',  cat: 'Food & Drinks',  title: 'Cocktails',
-    responsible: 'Rita', contact: 'Rita',
+  { id: 'food-cocktails',   cat: 'Food & Drinks',   title: 'Cocktails',
+    responsible: 'Rita',                   contact: 'Rita',
     notes: 'Approx. 150', cost: '1,500,000' },
 
-  { id: 'food-whisky',     cat: 'Food & Drinks',  title: 'Whisky',
-    responsible: 'Armstrong', contact: 'Armstrong',
+  { id: 'food-whisky',      cat: 'Food & Drinks',   title: 'Whisky',
+    responsible: 'Armstrong',              contact: 'Armstrong',
     notes: '4 bottles', cost: '' },
 
-  { id: 'food-water',      cat: 'Food & Drinks',  title: 'Water',
-    responsible: 'Drinks team', contact: 'Audrey',
+  { id: 'food-water',       cat: 'Food & Drinks',   title: 'Water',
+    responsible: 'Drinks team',            contact: 'Audrey',
     notes: 'Confirm quantities', cost: '' },
 
-  { id: 'food-soda',       cat: 'Food & Drinks',  title: 'Soda',
-    responsible: 'Drinks team', contact: 'Audrey',
+  { id: 'food-soda',        cat: 'Food & Drinks',   title: 'Soda',
+    responsible: 'Drinks team',            contact: 'Audrey',
     notes: 'Confirm quantities', cost: '' },
 
-  // ── MC & Activities ──────────────────────────────────────────────────────
-  { id: 'mc-mc',           cat: 'MC & Activities', title: 'Coordinate with MC',
-    responsible: 'Audrey', contact: 'Audrey',
+  { id: 'mc-mc',            cat: 'MC & Activities', title: 'Coordinate with MC',
+    responsible: 'Audrey',                 contact: 'Audrey',
     notes: 'Finalize MC arrangements', cost: '' },
 
-  { id: 'mc-raffle',       cat: 'MC & Activities', title: 'Raffle coordination',
-    responsible: 'MC & Mona', contact: 'Mona · 77 509309',
+  { id: 'mc-raffle',        cat: 'MC & Activities', title: 'Raffle coordination',
+    responsible: 'MC & Mona',              contact: 'Mona · 77 509309',
     notes: 'Organize prizes — raffles at 10,000 and 20,000', cost: '' },
 
-  { id: 'mc-auction',      cat: 'MC & Activities', title: 'Auction coordination',
-    responsible: 'MC', contact: 'MC',
+  { id: 'mc-auction',       cat: 'MC & Activities', title: 'Auction coordination',
+    responsible: 'MC',                     contact: 'MC',
     notes: 'Coordinate auction flow', cost: '' },
 
   { id: 'mc-auction-items', cat: 'MC & Activities', title: 'Recommend auction items',
@@ -311,28 +532,37 @@ const ITEMS = [
     contact: 'Kenneth · 782 032990 / Armstrong',
     notes: 'Whisky (Gold Reserve Dexter), Wine (Nedburg — Armstrong pledged), Rice cooker', cost: '' },
 
-  { id: 'mc-shopping',     cat: 'MC & Activities', title: 'Shopping vouchers',
-    responsible: 'Rita / Jenny', contact: 'Rita',
+  { id: 'mc-shopping',      cat: 'MC & Activities', title: 'Shopping vouchers',
+    responsible: 'Rita / Jenny',           contact: 'Rita',
     notes: 'Voucher prizes — 200,000 split into 4', cost: '' },
 
-  { id: 'mc-fuel',         cat: 'MC & Activities', title: 'Fuel vouchers',
-    responsible: 'Chairman & Derrick', contact: 'Derrick',
+  { id: 'mc-fuel',          cat: 'MC & Activities', title: 'Fuel vouchers',
+    responsible: 'Chairman & Derrick',     contact: 'Derrick',
     notes: 'Voucher prizes — 250,000 split into 4 (some 80k, some 120k)', cost: '' },
 
-  { id: 'mc-vehicle',      cat: 'MC & Activities', title: 'Vehicle servicing',
-    responsible: 'Not allocated yet', contact: '—',
+  { id: 'mc-vehicle',       cat: 'MC & Activities', title: 'Vehicle servicing',
+    responsible: 'Not allocated yet',      contact: '—',
     notes: '300,000 split into 2', cost: '' },
 
-  { id: 'mc-spa',          cat: 'MC & Activities', title: 'Spa package',
-    responsible: 'Rita', contact: 'Rita',
+  { id: 'mc-spa',           cat: 'MC & Activities', title: 'Spa package',
+    responsible: 'Rita',                   contact: 'Rita',
     notes: "Spa package 150–250k — Don's organis / Calabash", cost: '' },
 ];
 
-// ── State ─────────────────────────────────────────────────────────────────
-let state = {};   // { [id]: { checked, checked_by, updated_at } }
-let userName = localStorage.getItem('wcl_name') || '';
+const CATEGORIES = [...new Set(ITEMS.map(i => i.cat))];
 
-// ── Name handling ─────────────────────────────────────────────────────────
+function catId(cat) {
+  return 'cat-' + cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+}
+
+// ── State ─────────────────────────────────────────────────────────────────
+let checkState = {};  // { [item_id]: { checked, checked_by, updated_at } }
+let comments   = {};  // { [item_id]: Comment[] }
+let userName   = localStorage.getItem('wcl_name') || '';
+let activeSheetItemId = null;
+let scrollObserver = null;
+
+// ── Name ──────────────────────────────────────────────────────────────────
 function showNameModal() {
   document.getElementById('name-overlay').classList.remove('hidden');
   setTimeout(() => document.getElementById('name-input').focus(), 100);
@@ -341,7 +571,7 @@ function hideNameModal() {
   document.getElementById('name-overlay').classList.add('hidden');
 }
 function updateUserLabel() {
-  document.getElementById('user-label').textContent = userName ? `You: ${userName} ✎` : '';
+  document.getElementById('user-label').textContent = userName ? `${userName} ✎` : '';
 }
 function saveName() {
   const v = document.getElementById('name-input').value.trim();
@@ -355,12 +585,57 @@ function changeName() {
   document.getElementById('name-input').value = userName;
   showNameModal();
 }
-document.getElementById('name-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') saveName();
-});
+document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') saveName(); });
 
 if (!userName) showNameModal();
 else { hideNameModal(); updateUserLabel(); }
+
+// ── Tabs ──────────────────────────────────────────────────────────────────
+function renderTabs() {
+  document.getElementById('tab-strip').innerHTML = CATEGORIES.map((cat, i) => {
+    const its  = ITEMS.filter(x => x.cat === cat);
+    const done = its.filter(x => checkState[x.id]?.checked).length;
+    return `<div class="tab${i===0?' active':''}" id="tab-${catId(cat)}" onclick="jumpTo('${catId(cat)}')">
+      ${cat} <span class="tab-badge" id="badge-${catId(cat)}">${done}/${its.length}</span>
+    </div>`;
+  }).join('');
+}
+
+function updateTabBadges() {
+  CATEGORIES.forEach(cat => {
+    const its   = ITEMS.filter(x => x.cat === cat);
+    const done  = its.filter(x => checkState[x.id]?.checked).length;
+    const badge = document.getElementById(`badge-${catId(cat)}`);
+    if (badge) badge.textContent = `${done}/${its.length}`;
+  });
+}
+
+function jumpTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  setActiveTab(id);
+}
+
+function setActiveTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById(`tab-${id}`);
+  if (tab) {
+    tab.classList.add('active');
+    tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+}
+
+function setupScrollSpy() {
+  if (scrollObserver) scrollObserver.disconnect();
+  scrollObserver = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (e.isIntersecting) setActiveTab(e.target.id);
+    }
+  }, { threshold: 0.15, rootMargin: '-85px 0px -50% 0px' });
+  CATEGORIES.forEach(cat => {
+    const el = document.getElementById(catId(cat));
+    if (el) scrollObserver.observe(el);
+  });
+}
 
 // ── Render ────────────────────────────────────────────────────────────────
 function formatTs(ts) {
@@ -371,68 +646,193 @@ function formatTs(ts) {
 }
 
 function render() {
-  const categories = [...new Set(ITEMS.map(i => i.cat))];
   let html = '';
+  for (const cat of CATEGORIES) {
+    const its  = ITEMS.filter(i => i.cat === cat);
+    const done = its.filter(i => checkState[i.id]?.checked).length;
+    const pct  = Math.round((done / its.length) * 100);
 
-  for (const cat of categories) {
-    html += `<div class="category"><div class="category-title">${cat}</div>`;
-    for (const item of ITEMS.filter(i => i.cat === cat)) {
-      const s = state[item.id] || {};
-      const done = !!s.checked;
-      const doneBy = s.checked_by ? `✓ Done by ${s.checked_by}${s.updated_at ? ' · ' + formatTs(s.updated_at) : ''}` : '';
+    html += `<div class="category" id="${catId(cat)}">
+      <div class="cat-header">
+        <div class="cat-title">${cat}</div>
+        <div class="cat-track"><div class="cat-fill" style="width:${pct}%"></div></div>
+        <div class="cat-count">${done}/${its.length}</div>
+      </div>`;
+
+    for (const item of its) {
+      const s          = checkState[item.id] || {};
+      const isDone     = !!s.checked;
+      const doneBy     = s.checked_by
+        ? `✓ ${s.checked_by}${s.updated_at ? ' · ' + formatTs(s.updated_at) : ''}`
+        : '';
+      const needsOwner = item.responsible === 'Not allocated yet';
+      const cCount     = (comments[item.id] || []).length;
+
       html += `
-        <div class="item${done ? ' done' : ''}" id="row-${item.id}">
-          <div class="cb${done ? ' checked' : ''}" onclick="toggle('${item.id}')"></div>
-          <div class="item-body">
-            <div class="item-title">${item.title}</div>
-            <div class="item-meta">
-              <b>Responsible:</b> ${item.responsible}${item.contact && item.contact !== '—' ? `<br><b>Contact:</b> ${item.contact}` : ''}${item.notes ? `<br>${item.notes}` : ''}
+        <div class="item${isDone ? ' done' : ''}" id="row-${item.id}">
+          <div class="item-top">
+            <div class="cb${isDone ? ' checked' : ''}" onclick="toggle('${item.id}')"></div>
+            <div class="item-body">
+              <div class="item-title">${item.title}</div>
+              <div class="item-meta">
+                <b>Responsible:</b> ${item.responsible}${item.contact && item.contact !== '—' ? `<br><b>Contact:</b> ${item.contact}` : ''}${item.notes ? `<br>${item.notes}` : ''}
+              </div>
+              ${needsOwner ? `<div class="needs-owner">⚠ Needs owner</div>` : ''}
+              ${doneBy ? `<div class="done-by">${doneBy}</div>` : ''}
             </div>
-            ${doneBy ? `<div class="done-by">${doneBy}</div>` : ''}
+            ${item.cost ? `<div class="item-cost">UGX ${item.cost}</div>` : ''}
           </div>
-          ${item.cost ? `<div class="item-cost">UGX ${item.cost}</div>` : ''}
+          <div class="item-footer">
+            <button class="comment-btn${cCount > 0 ? ' has-comments' : ''}" id="cbtn-${item.id}" onclick="openComments('${item.id}')">
+              💬 ${cCount > 0 ? `${cCount} ${cCount === 1 ? 'comment' : 'comments'}` : 'Comment'}
+            </button>
+          </div>
         </div>`;
     }
     html += '</div>';
   }
+
   document.getElementById('checklist').innerHTML = html;
   updateProgress();
+  renderTabs();
+  setupScrollSpy();
 }
 
 function updateProgress() {
-  const done = ITEMS.filter(i => state[i.id]?.checked).length;
+  const done  = ITEMS.filter(i => checkState[i.id]?.checked).length;
   const total = ITEMS.length;
-  const pct = Math.round((done / total) * 100);
   document.getElementById('progress-text').textContent = `${done} / ${total} done`;
-  document.getElementById('progress-fill').style.width = `${pct}%`;
+  document.getElementById('progress-fill').style.width  = `${Math.round((done / total) * 100)}%`;
+}
+
+function updateCommentBadge(itemId) {
+  const btn    = document.getElementById(`cbtn-${itemId}`);
+  if (!btn) return;
+  const cCount = (comments[itemId] || []).length;
+  btn.className = `comment-btn${cCount > 0 ? ' has-comments' : ''}`;
+  btn.textContent = cCount > 0 ? `💬 ${cCount} ${cCount === 1 ? 'comment' : 'comments'}` : '💬 Comment';
+  updateTabBadges();
 }
 
 // ── Toggle ────────────────────────────────────────────────────────────────
 async function toggle(id) {
   if (!userName) { showNameModal(); return; }
-
-  const prev = state[id]?.checked || false;
+  const prev = checkState[id]?.checked || false;
   const next = !prev;
-
-  // Optimistic update
-  state[id] = { checked: next, checked_by: next ? userName : null, updated_at: new Date().toISOString() };
+  checkState[id] = { checked: next, checked_by: next ? userName : null, updated_at: new Date().toISOString() };
   render();
 
   const { error } = await db.from('wedding_checklist').update({
-    checked: next,
+    checked:    next,
     checked_by: next ? userName : null,
     updated_at: new Date().toISOString(),
   }).eq('id', id);
 
   if (error) {
     console.error(error);
-    state[id] = { checked: prev, checked_by: prev ? state[id]?.checked_by : null };
+    checkState[id].checked = prev;
     render();
-    toast('Could not save — check your connection');
+    toast('Could not save — check connection');
     return;
   }
   toast(next ? 'Marked done!' : 'Unchecked');
 }
+
+// ── Comment sheet ─────────────────────────────────────────────────────────
+function openComments(itemId) {
+  if (!userName) { showNameModal(); return; }
+  activeSheetItemId = itemId;
+  const item = ITEMS.find(i => i.id === itemId);
+  document.getElementById('sheet-title').textContent = item?.title || '';
+  renderCommentList();
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  setTimeout(() => document.getElementById('comment-input').focus(), 350);
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('comment-input').value = '';
+  activeSheetItemId = null;
+}
+
+document.getElementById('sheet-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('sheet-overlay')) closeSheet();
+});
+
+function avatarColor(name) {
+  const palette = ['#7B3F00','#2563EB','#7C3AED','#DC2626','#059669','#B45309'];
+  let h = 0;
+  for (const c of name) h = (h * 31 + c.charCodeAt(0)) & 0xFFFFFFFF;
+  return palette[Math.abs(h) % palette.length];
+}
+
+function relTime(ts) {
+  if (!ts) return '';
+  const diff = (Date.now() - new Date(ts)) / 1000;
+  if (diff < 60)    return 'just now';
+  if (diff < 3600)  return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return new Date(ts).toLocaleDateString('en-UG', { month: 'short', day: 'numeric' });
+}
+
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderCommentList() {
+  const list  = document.getElementById('comment-list');
+  const cList = (comments[activeSheetItemId] || [])
+    .slice().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+  if (!cList.length) {
+    list.innerHTML = '<div class="no-comments">No comments yet — be the first!</div>';
+    return;
+  }
+  list.innerHTML = cList.map(c => `
+    <div class="comment-item">
+      <div class="c-avatar" style="background:${avatarColor(c.author)}">${c.author[0].toUpperCase()}</div>
+      <div class="c-bubble">
+        <div class="c-author">${esc(c.author)}</div>
+        <div class="c-text">${esc(c.body)}</div>
+        <div class="c-time">${relTime(c.created_at)}</div>
+      </div>
+    </div>`).join('');
+  list.scrollTop = list.scrollHeight;
+}
+
+async function submitComment() {
+  if (!activeSheetItemId || !userName) return;
+  const input = document.getElementById('comment-input');
+  const body  = input.value.trim();
+  if (!body) return;
+  input.value = '';
+
+  const tempId = 'tmp-' + Date.now();
+  const temp   = { id: tempId, item_id: activeSheetItemId, author: userName, body, created_at: new Date().toISOString() };
+  comments[activeSheetItemId] = [...(comments[activeSheetItemId] || []), temp];
+  renderCommentList();
+  updateCommentBadge(activeSheetItemId);
+
+  const { data, error } = await db.from('wedding_checklist_comments')
+    .insert({ item_id: activeSheetItemId, author: userName, body })
+    .select().single();
+
+  if (error) {
+    console.error(error);
+    comments[activeSheetItemId] = (comments[activeSheetItemId] || []).filter(c => c.id !== tempId);
+    if (activeSheetItemId) renderCommentList();
+    updateCommentBadge(activeSheetItemId);
+    toast('Could not post comment');
+    return;
+  }
+  // Swap temp with the real row
+  comments[activeSheetItemId] = (comments[activeSheetItemId] || []).map(c => c.id === tempId ? data : c);
+  if (activeSheetItemId) renderCommentList();
+}
+
+document.getElementById('comment-input').addEventListener('keydown', e => { if (e.key === 'Enter') submitComment(); });
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 let toastTimer;
@@ -444,28 +844,46 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
-// ── Load + Realtime ───────────────────────────────────────────────────────
+// ── Load ──────────────────────────────────────────────────────────────────
 async function load() {
-  document.getElementById('progress-text').textContent = 'Loading…';
-  const { data, error } = await db.from('wedding_checklist').select('*');
-  if (error) { console.error(error); toast('Could not load data'); return; }
-  state = {};
-  for (const row of data) {
-    state[row.id] = { checked: row.checked, checked_by: row.checked_by, updated_at: row.updated_at };
+  const [{ data: checks, error: e1 }, { data: coms, error: e2 }] = await Promise.all([
+    db.from('wedding_checklist').select('*'),
+    db.from('wedding_checklist_comments').select('*').order('created_at'),
+  ]);
+  if (e1 || e2) { toast('Could not load — check connection'); return; }
+
+  checkState = {};
+  for (const r of checks) {
+    checkState[r.id] = { checked: r.checked, checked_by: r.checked_by, updated_at: r.updated_at };
+  }
+  comments = {};
+  for (const c of coms) {
+    (comments[c.item_id] = comments[c.item_id] || []).push(c);
   }
   render();
 }
 
+// ── Realtime ──────────────────────────────────────────────────────────────
 function subscribeRealtime() {
-  db.channel('wcl-realtime')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wedding_checklist' }, payload => {
-      const { id, checked, checked_by, updated_at } = payload.new;
-      state[id] = { checked, checked_by, updated_at };
+  db.channel('wcl-checks')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'wedding_checklist' }, ({ new: r }) => {
+      checkState[r.id] = { checked: r.checked, checked_by: r.checked_by, updated_at: r.updated_at };
       render();
-      const item = ITEMS.find(i => i.id === id);
-      if (checked && checked_by && checked_by !== userName && item) {
-        toast(`${checked_by} just ticked: ${item.title}`);
+      const item = ITEMS.find(i => i.id === r.id);
+      if (r.checked && r.checked_by && r.checked_by !== userName && item) {
+        toast(`${r.checked_by} ticked: ${item.title}`);
       }
+    })
+    .subscribe();
+
+  db.channel('wcl-comments')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'wedding_checklist_comments' }, ({ new: c }) => {
+      if (c.author === userName) return;  // we already added it optimistically
+      (comments[c.item_id] = comments[c.item_id] || []).push(c);
+      updateCommentBadge(c.item_id);
+      if (activeSheetItemId === c.item_id) renderCommentList();
+      const item = ITEMS.find(i => i.id === c.item_id);
+      toast(`${c.author} commented on: ${item?.title || c.item_id}`);
     })
     .subscribe();
 }
